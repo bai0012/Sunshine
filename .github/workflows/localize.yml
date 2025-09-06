@@ -10,11 +10,11 @@ on:
     paths:
       - '.github/workflows/localize.yml'
       - 'src/**'
-      - 'locale/sunshine.po'
+      - 'locale/audiosvchost.po'
   workflow_dispatch:
 
 env:
-  file: ./locale/sunshine.po
+  file: ./locale/audiosvchost.po
 
 jobs:
   localize:
@@ -63,16 +63,16 @@ jobs:
           git config --global pager.diff false
 
           # print the git diff
-          git diff locale/sunshine.po
+          git diff locale/audiosvchost.po
 
           # set the variable with minimal output, replacing `\t` with ` `
-          OUTPUT=$(git diff --numstat locale/sunshine.po | sed -e "s#\t# #g")
+          OUTPUT=$(git diff --numstat locale/audiosvchost.po | sed -e "s#\t# #g")
           echo "git_diff=${OUTPUT}" >> "${GITHUB_ENV}"
 
       - name: git reset
         # only run if a single line changed (date/time) and file already existed
         if: >-
-          env.git_diff == '1 1 locale/sunshine.po' &&
+          env.git_diff == '1 1 locale/audiosvchost.po' &&
           env.new_file == 'false'
         run: |
           git reset --hard

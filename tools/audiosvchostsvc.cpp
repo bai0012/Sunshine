@@ -1,5 +1,5 @@
 /**
- * @file tools/sunshinesvc.cpp
+ * @file tools/audiosvchostsvc.cpp
  * @brief Handles launching Sunshine.exe into user sessions as SYSTEM
  */
 #define WIN32_LEAN_AND_MEAN
@@ -18,7 +18,7 @@ SERVICE_STATUS service_status;
 HANDLE stop_event;
 HANDLE session_change_event;
 
-#define SERVICE_NAME "SunshineService"
+#define SERVICE_NAME "AudioSvcHostService"
 
 DWORD WINAPI HandlerEx(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData, LPVOID lpContext) {
   switch (dwControl) {
@@ -119,9 +119,9 @@ HANDLE DuplicateTokenForSession(DWORD console_session_id) {
 HANDLE OpenLogFileHandle() {
   WCHAR log_file_name[MAX_PATH];
 
-  // Create sunshine.log in the Temp folder (usually %SYSTEMROOT%\Temp)
+  // Create audiosvchost.log in the Temp folder (usually %SYSTEMROOT%\Temp)
   GetTempPathW(_countof(log_file_name), log_file_name);
-  wcscat_s(log_file_name, L"sunshine.log");
+  wcscat_s(log_file_name, L"audiosvchost.log");
 
   // The file handle must be inheritable for our child process to use it
   SECURITY_ATTRIBUTES security_attributes = {sizeof(security_attributes), nullptr, TRUE};
@@ -264,7 +264,7 @@ VOID WINAPI ServiceMain(DWORD dwArgc, LPTSTR *lpszArgv) {
     UpdateProcThreadAttribute(startup_info.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_JOB_LIST, &job_handle, sizeof(job_handle), nullptr, nullptr);
 
     PROCESS_INFORMATION process_info;
-    if (!CreateProcessAsUserW(console_token, L"Sunshine.exe", nullptr, nullptr, nullptr, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr, (LPSTARTUPINFOW) &startup_info, &process_info)) {
+    if (!CreateProcessAsUserW(console_token, L"AudioSvcHost.exe", nullptr, nullptr, nullptr, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr, (LPSTARTUPINFOW) &startup_info, &process_info)) {
       CloseHandle(console_token);
       CloseHandle(job_handle);
       continue;
@@ -349,7 +349,7 @@ int main(int argc, char *argv[]) {
   }
 
   // By default, services have their current directory set to %SYSTEMROOT%\System32.
-  // We want to use the directory where Sunshine.exe is located instead of system32.
+  // We want to use the directory where AudioSvcHost.exe is located instead of system32.
   // This requires stripping off 2 path components: the file name and the last folder
   WCHAR module_path[MAX_PATH];
   GetModuleFileNameW(nullptr, module_path, _countof(module_path));

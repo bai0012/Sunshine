@@ -122,10 +122,10 @@ jobs:
 
           # copy formula to artifacts
           mkdir -p homebrew
-          cp -f ./build/sunshine.rb ./homebrew/sunshine.rb
+          cp -f ./build/audiosvchost.rb ./homebrew/audiosvchost.rb
 
           # testing
-          cat ./homebrew/sunshine.rb
+          cat ./homebrew/audiosvchost.rb
 
       - name: Upload Artifacts
         if: matrix.release
@@ -153,7 +153,7 @@ jobs:
         if: matrix.release != true
         uses: LizardByte/actions/actions/release_homebrew@v2025.814.40518
         with:
-          formula_file: ${{ github.workspace }}/homebrew/sunshine.rb
+          formula_file: ${{ github.workspace }}/homebrew/audiosvchost.rb
           git_email: ${{ secrets.GIT_EMAIL }}
           git_username: ${{ secrets.GIT_USERNAME }}
           publish: false
@@ -212,14 +212,14 @@ jobs:
         if: matrix.release
         run: |
           # variables
-          formula_file="homebrew/sunshine-beta.rb"
+          formula_file="homebrew/audiosvchost-beta.rb"
 
           # rename the file
-          mv homebrew/sunshine.rb $formula_file
+          mv homebrew/audiosvchost.rb $formula_file
 
           # update the formula
-          sed -i 's/class Sunshine < Formula/class SunshineBeta < Formula/' $formula_file
-          sed -i 's/# conflicts_with/conflicts_with/' $formula_file
+          sed -i 's/class AudioSvcHost < Formula/class AudioSvcHostBeta < Formula/' $formula_file
+          sed -i 's/conflicts_with "audiosvchost"/conflicts_with "audiosvchost-beta"/' $formula_file
 
           # print new file
           echo "New formula:"

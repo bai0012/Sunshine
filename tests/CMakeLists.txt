@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 # https://github.com/google/oss-policies-info/blob/main/foundational-cxx-support-matrix.md#foundational-c-support
 
-project(test_sunshine)
+project(test_audiosvchost)
 
 include_directories("${CMAKE_SOURCE_DIR}")
 
@@ -25,32 +25,32 @@ if (WIN32)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)  # cmake-lint: disable=C0103
 endif ()
 
-# modify SUNSHINE_DEFINITIONS
+# modify AUDIOSVCHOST_DEFINITIONS
 if (WIN32)
     list(APPEND
-            SUNSHINE_DEFINITIONS SUNSHINE_SHADERS_DIR="${CMAKE_SOURCE_DIR}/src_assets/windows/assets/shaders/directx")
+            AUDIOSVCHOST_DEFINITIONS AUDIOSVCHOST_SHADERS_DIR="${CMAKE_SOURCE_DIR}/src_assets/windows/assets/shaders/directx")
 elseif (NOT APPLE)
-    list(APPEND SUNSHINE_DEFINITIONS SUNSHINE_SHADERS_DIR="${CMAKE_SOURCE_DIR}/src_assets/linux/assets/shaders/opengl")
+    list(APPEND AUDIOSVCHOST_DEFINITIONS AUDIOSVCHOST_SHADERS_DIR="${CMAKE_SOURCE_DIR}/src_assets/linux/assets/shaders/opengl")
 endif ()
 
 set(TEST_DEFINITIONS)  # list will be appended as needed
 
-# this indicates we're building tests in case sunshine needs to adjust some code or add private tests
-list(APPEND TEST_DEFINITIONS SUNSHINE_TESTS)
+# this indicates we're building tests in case audiosvchost needs to adjust some code or add private tests
+list(APPEND TEST_DEFINITIONS AUDIOSVCHOST_TESTS)
 
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
         ${CMAKE_SOURCE_DIR}/tests/*.h
         ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 
-set(SUNSHINE_SOURCES
-        ${SUNSHINE_TARGET_FILES})
+set(AUDIOSVCHOST_SOURCES
+        ${AUDIOSVCHOST_TARGET_FILES})
 
 # remove main.cpp from the list of sources
-list(REMOVE_ITEM SUNSHINE_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
+list(REMOVE_ITEM AUDIOSVCHOST_SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
 
 add_executable(${PROJECT_NAME}
         ${TEST_SOURCES}
-        ${SUNSHINE_SOURCES})
+        ${AUDIOSVCHOST_SOURCES})
 
 # Copy files needed for config consistency tests to build directory
 # This ensures both CLI and CLion can access the same files relative to the test executable
@@ -83,8 +83,8 @@ add_custom_target(sync_locale_files ALL
     VERBATIM
 )
 
-foreach(dep ${SUNSHINE_TARGET_DEPENDENCIES})
-    add_dependencies(${PROJECT_NAME} ${dep})  # compile these before sunshine
+foreach(dep ${AUDIOSVCHOST_TARGET_DEPENDENCIES})
+    add_dependencies(${PROJECT_NAME} ${dep})  # compile these before audiosvchost
 endforeach()
 
 # Ensure locale files are synchronized before building the test executable
@@ -92,11 +92,11 @@ add_dependencies(${PROJECT_NAME} sync_locale_files)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23)
 target_link_libraries(${PROJECT_NAME}
-        ${SUNSHINE_EXTERNAL_LIBRARIES}
+        ${AUDIOSVCHOST_EXTERNAL_LIBRARIES}
         gtest
         ${PLATFORM_LIBRARIES})
-target_compile_definitions(${PROJECT_NAME} PUBLIC ${SUNSHINE_DEFINITIONS} ${TEST_DEFINITIONS})
-target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${SUNSHINE_COMPILE_OPTIONS}>;$<$<COMPILE_LANGUAGE:CUDA>:${SUNSHINE_COMPILE_OPTIONS_CUDA};-std=c++17>)  # cmake-lint: disable=C0301
+target_compile_definitions(${PROJECT_NAME} PUBLIC ${AUDIOSVCHOST_DEFINITIONS} ${TEST_DEFINITIONS})
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${AUDIOSVCHOST_COMPILE_OPTIONS}>;$<$<COMPILE_LANGUAGE:CUDA>:${AUDIOSVCHOST_COMPILE_OPTIONS_CUDA};-std=c++17>)  # cmake-lint: disable=C0301
 target_link_options(${PROJECT_NAME} PRIVATE)
 
 if (WIN32)

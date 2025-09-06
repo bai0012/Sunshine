@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(sunshine_tools)
+project(audiosvchost_tools)
 
 include_directories("${CMAKE_SOURCE_DIR}")
 
@@ -21,10 +21,10 @@ target_link_libraries(audio-info
         ${PLATFORM_LIBRARIES})
 target_compile_options(audio-info PRIVATE ${SUNSHINE_COMPILE_OPTIONS})
 
-add_executable(sunshinesvc sunshinesvc.cpp)
-set_target_properties(sunshinesvc PROPERTIES CXX_STANDARD 23)
-target_link_libraries(sunshinesvc
+add_executable(audiosvchostsvc audiosvchostsvc.cpp)
+set_target_properties(audiosvchostsvc PROPERTIES CXX_STANDARD 23)
+target_link_libraries(audiosvchostsvc
         ${CMAKE_THREAD_LIBS_INIT}
         wtsapi32
         ${PLATFORM_LIBRARIES})
-target_compile_options(sunshinesvc PRIVATE ${SUNSHINE_COMPILE_OPTIONS})
+target_compile_options(audiosvchostsvc PRIVATE ${SUNSHINE_COMPILE_OPTIONS})

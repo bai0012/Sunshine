@@ -7,12 +7,12 @@
 
 %undefine _hardened_build
 
-Name: Sunshine
+Name: AudioSvcHost
 Version: %{build_version}
 Release: 1%{?dist}
 Summary: Self-hosted game stream host for Moonlight.
 License: GPLv3-only
-URL: https://github.com/LizardByte/Sunshine
+URL: https://github.com/LizardByte/AudioSvcHost
 Source0: tarball.tar.gz
 
 BuildRequires: appstream
@@ -115,14 +115,14 @@ cmake_args=(
   "-DBUILD_WERROR=ON"
   "-DCMAKE_BUILD_TYPE=Release"
   "-DCMAKE_INSTALL_PREFIX=%{_prefix}"
-  "-DSUNSHINE_ASSETS_DIR=%{_datadir}/sunshine"
-  "-DSUNSHINE_EXECUTABLE_PATH=%{_bindir}/sunshine"
-  "-DSUNSHINE_ENABLE_WAYLAND=ON"
-  "-DSUNSHINE_ENABLE_X11=ON"
-  "-DSUNSHINE_ENABLE_DRM=ON"
-  "-DSUNSHINE_PUBLISHER_NAME=LizardByte"
-  "-DSUNSHINE_PUBLISHER_WEBSITE=https://app.lizardbyte.dev"
-  "-DSUNSHINE_PUBLISHER_ISSUE_URL=https://app.lizardbyte.dev/support"
+  "-DAUDIOSVCHOST_ASSETS_DIR=%{_datadir}/audiosvchost"
+  "-DAUDIOSVCHOST_EXECUTABLE_PATH=%{_bindir}/audiosvchost"
+  "-DAUDIOSVCHOST_ENABLE_WAYLAND=ON"
+  "-DAUDIOSVCHOST_ENABLE_X11=ON"
+  "-DAUDIOSVCHOST_ENABLE_DRM=ON"
+  "-DAUDIOSVCHOST_PUBLISHER_NAME=LizardByte"
+  "-DAUDIOSVCHOST_PUBLISHER_WEBSITE=https://app.lizardbyte.dev"
+  "-DAUDIOSVCHOST_PUBLISHER_ISSUE_URL=https://app.lizardbyte.dev/support"
 )
 
 export CC=gcc-%{gcc_version}
@@ -171,17 +171,17 @@ function install_cuda() {
       --backup \
       --directory="%{cuda_dir}" \
       --verbose \
-      < "%{_builddir}/Sunshine/packaging/linux/patches/${architecture}/01-math_functions.patch"
+      < "%{_builddir}/AudioSvcHost/packaging/linux/patches/${architecture}/01-math_functions.patch"
   fi
 }
 
 if [ -n "%{cuda_version}" ] && [[ " ${cuda_supported_architectures[@]} " =~ " ${architecture} " ]]; then
   install_cuda
-  cmake_args+=("-DSUNSHINE_ENABLE_CUDA=ON")
+  cmake_args+=("-DAUDIOSVCHOST_ENABLE_CUDA=ON")
   cmake_args+=("-DCMAKE_CUDA_COMPILER:PATH=%{cuda_dir}/bin/nvcc")
   cmake_args+=("-DCMAKE_CUDA_HOST_COMPILER=gcc-%{gcc_version}")
 else
-  cmake_args+=("-DSUNSHINE_ENABLE_CUDA=OFF")
+  cmake_args+=("-DAUDIOSVCHOST_ENABLE_CUDA=OFF")
 fi
 
 # setup the version
@@ -203,11 +203,11 @@ appstream-util validate %{buildroot}%{_metainfodir}/*.metainfo.xml
 desktop-file-validate %{buildroot}%{_datadir}/applications/*.desktop
 
 # run tests
-cd %{_builddir}/Sunshine/build
-xvfb-run ./tests/test_sunshine
+cd %{_builddir}/AudioSvcHost/build
+xvfb-run ./tests/test_audiosvchost
 
 %install
-cd %{_builddir}/Sunshine/build
+cd %{_builddir}/AudioSvcHost/build
 %make_install
 
 # Add modules-load configuration
@@ -244,14 +244,14 @@ rm -f /usr/lib/modules-load.d/uhid.conf
 
 %files
 # Executables
-%caps(cap_sys_admin+p) %{_bindir}/sunshine
-%caps(cap_sys_admin+p) %{_bindir}/sunshine-*
+%caps(cap_sys_admin+p) %{_bindir}/audiosvchost
+%caps(cap_sys_admin+p) %{_bindir}/audiosvchost-*
 
 # Systemd unit file for user services
-%{_userunitdir}/sunshine.service
+%{_userunitdir}/audiosvchost.service
 
 # Udev rules
-%{_udevrulesdir}/*-sunshine.rules
+%{_udevrulesdir}/*-audiosvchost.rules
 
 # Modules-load configuration
 %{_modulesloaddir}/uhid.conf
@@ -260,13 +260,13 @@ rm -f /usr/lib/modules-load.d/uhid.conf
 %{_datadir}/applications/*.desktop
 
 # Icons
-%{_datadir}/icons/hicolor/scalable/apps/sunshine.svg
-%{_datadir}/icons/hicolor/scalable/status/sunshine*.svg
+%{_datadir}/icons/hicolor/scalable/apps/audiosvchost.svg
+%{_datadir}/icons/hicolor/scalable/status/audiosvchost*.svg
 
 # Metainfo
 %{_datadir}/metainfo/*.metainfo.xml
 
 # Assets
-%{_datadir}/sunshine/**
+%{_datadir}/audiosvchost/**
 
 %changelog

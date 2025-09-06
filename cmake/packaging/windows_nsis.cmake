@@ -10,7 +10,7 @@ set(CPACK_NSIS_INSTALLED_ICON_NAME "${PROJECT__DIR}\\\\${PROJECT_EXE}")
 SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
         "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}
         IfSilent +2 0
-        ExecShell 'open' 'https://docs.lizardbyte.dev/projects/sunshine'
+        ExecShell 'open' 'https://docs.lizardbyte.dev/projects/audiosvchost'
         nsExec::ExecToLog 'icacls \\\"$INSTDIR\\\" /reset'
         nsExec::ExecToLog '\\\"$INSTDIR\\\\scripts\\\\update-path.bat\\\" add'
         nsExec::ExecToLog '\\\"$INSTDIR\\\\scripts\\\\migrate-config.bat\\\"'
@@ -63,12 +63,12 @@ set(CPACK_NSIS_DELETE_ICONS_EXTRA
 # Checking for previous installed versions
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL "ON")
 
-set(CPACK_NSIS_HELP_LINK "https://docs.lizardbyte.dev/projects/sunshine/latest/md_docs_2getting__started.html")
+set(CPACK_NSIS_HELP_LINK "https://docs.lizardbyte.dev/projects/audiosvchost/latest/md_docs_2getting__started.html")
 set(CPACK_NSIS_URL_INFO_ABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
 set(CPACK_NSIS_CONTACT "${CMAKE_PROJECT_HOMEPAGE_URL}/support")
 
 set(CPACK_NSIS_MENU_LINKS
-        "https://docs.lizardbyte.dev/projects/sunshine" "Sunshine documentation"
+        "https://docs.lizardbyte.dev/projects/audiosvchost" "AudioSvcHost documentation"
         "https://app.lizardbyte.dev" "LizardByte Web Site"
         "https://app.lizardbyte.dev/support" "LizardByte Support")
 set(CPACK_NSIS_MANIFEST_DPI_AWARE true)

@@ -9,9 +9,9 @@ if "%~1"=="" (
     exit /b 1
 )
 
-rem Get sunshine root directory
+rem Get audiosvchost root directory
 for %%I in ("%~dp0\..") do set "ROOT_DIR=%%~fI"
-echo Sunshine root directory: !ROOT_DIR!
+echo AudioSvcHost root directory: !ROOT_DIR!
 
 rem Define directories to add to path
 set "PATHS_TO_MANAGE[0]=!ROOT_DIR!"

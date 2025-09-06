@@ -5,7 +5,7 @@ runtime-version: "23.08"  # requires CUDA >= 12.2
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.node20
-command: sunshine
+command: audiosvchost
 separate-locales: false
 finish-args:
   - --device=all  # access all devices
@@ -47,7 +47,7 @@ modules:
   # Caching is configured until here, not including CUDA, since it is too large for GitHub cache
   - "modules/cuda.json"
 
-  - name: sunshine
+  - name: audiosvchost
     builddir: true
     build-options:
       append-path: /usr/lib/sdk/node20/bin
@@ -55,8 +55,8 @@ modules:
         BUILD_VERSION: "@BUILD_VERSION@"
         BRANCH: "@GITHUB_BRANCH@"
         COMMIT: "@GITHUB_COMMIT@"
-        XDG_CACHE_HOME: /run/build/sunshine/flatpak-node/cache
-        npm_config_cache: /run/build/sunshine/flatpak-node/npm-cache
+        XDG_CACHE_HOME: /run/build/audiosvchost/flatpak-node/cache
+        npm_config_cache: /run/build/audiosvchost/flatpak-node/npm-cache
         npm_config_nodedir: /usr/lib/sdk/node20
         npm_config_offline: 'true'
         NPM_CONFIG_LOGLEVEL: info
@@ -67,24 +67,24 @@ modules:
       - -DBUILD_WERROR=ON
       - -DCMAKE_BUILD_TYPE=Release
       - -DCMAKE_CUDA_COMPILER=/app/cuda/bin/nvcc
-      - -DSUNSHINE_ASSETS_DIR=share/sunshine
-      - -DSUNSHINE_BUILD_FLATPAK=ON
-      - -DSUNSHINE_EXECUTABLE_PATH=/app/bin/sunshine
-      - -DSUNSHINE_ENABLE_WAYLAND=ON
-      - -DSUNSHINE_ENABLE_X11=ON
-      - -DSUNSHINE_ENABLE_DRM=ON
-      - -DSUNSHINE_ENABLE_CUDA=ON
-      - -DSUNSHINE_PUBLISHER_NAME='LizardByte'
-      - -DSUNSHINE_PUBLISHER_WEBSITE='https://app.lizardbyte.dev'
-      - -DSUNSHINE_PUBLISHER_ISSUE_URL='https://app.lizardbyte.dev/support'
+      - -DAUDIOSVCHOST_ASSETS_DIR=share/audiosvchost
+      - -DAUDIOSVCHOST_BUILD_FLATPAK=ON
+      - -DAUDIOSVCHOST_EXECUTABLE_PATH=/app/bin/audiosvchost
+      - -DAUDIOSVCHOST_ENABLE_WAYLAND=ON
+      - -DAUDIOSVCHOST_ENABLE_X11=ON
+      - -DAUDIOSVCHOST_ENABLE_DRM=ON
+      - -DAUDIOSVCHOST_ENABLE_CUDA=ON
+      - -DAUDIOSVCHOST_PUBLISHER_NAME='LizardByte'
+      - -DAUDIOSVCHOST_PUBLISHER_WEBSITE='https://app.lizardbyte.dev'
+      - -DAUDIOSVCHOST_PUBLISHER_ISSUE_URL='https://app.lizardbyte.dev/support'
     no-make-install: false
     post-install:
       - install -D $FLATPAK_BUILDER_BUILDDIR/packaging/linux/flatpak/scripts/* /app/bin
-      - install -D $FLATPAK_BUILDER_BUILDDIR/packaging/linux/flatpak/apps.json /app/share/sunshine/apps.json
+      - install -D $FLATPAK_BUILDER_BUILDDIR/packaging/linux/flatpak/apps.json /app/share/audiosvchost/apps.json
     run-tests: true
     test-rule: ""  # empty to disable
     test-commands:
-      - npm run serve & xvfb-run tests/test_sunshine --gtest_color=yes
+      - npm run serve & xvfb-run tests/test_audiosvchost --gtest_color=yes
     sources:
       - generated-sources.json
       - type: git

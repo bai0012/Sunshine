@@ -1,7 +1,7 @@
 require "language/node"
 
 class @PROJECT_NAME@ < Formula
-  # conflicts_with "sunshine", because: "sunshine and sunshine-beta cannot be installed at the same time"
+  conflicts_with "audiosvchost", because: "audiosvchost and audiosvchost-beta cannot be installed at the same time"
   desc "@PROJECT_DESCRIPTION@"
   homepage "@PROJECT_HOMEPAGE_URL@"
   url "@GITHUB_CLONE_URL@",
@@ -84,11 +84,11 @@ class @PROJECT_NAME@ < Formula
       -DCMAKE_INSTALL_PREFIX=#{prefix}
       -DHOMEBREW_ALLOW_FETCHCONTENT=ON
       -DOPENSSL_ROOT_DIR=#{Formula["openssl"].opt_prefix}
-      -DSUNSHINE_ASSETS_DIR=sunshine/assets
-      -DSUNSHINE_BUILD_HOMEBREW=ON
-      -DSUNSHINE_PUBLISHER_NAME='LizardByte'
-      -DSUNSHINE_PUBLISHER_WEBSITE='https://app.lizardbyte.dev'
-      -DSUNSHINE_PUBLISHER_ISSUE_URL='https://app.lizardbyte.dev/support'
+      -DAUDIOSVCHOST_ASSETS_DIR=audiosvchost/assets
+      -DAUDIOSVCHOST_BUILD_HOMEBREW=ON
+      -DAUDIOSVCHOST_PUBLISHER_NAME='LizardByte'
+      -DAUDIOSVCHOST_PUBLISHER_WEBSITE='https://app.lizardbyte.dev'
+      -DAUDIOSVCHOST_PUBLISHER_ISSUE_URL='https://app.lizardbyte.dev/support'
     ]
 
     if build.with? "docs"
@@ -109,7 +109,7 @@ class @PROJECT_NAME@ < Formula
       unless Formula["icu4c"].any_version_installed?
         odie <<~EOS
           icu4c must be installed to link against static Boost libraries,
-          either install icu4c or use brew install sunshine --with-static-boost instead
+          either install icu4c or use brew install audiosvchost --with-static-boost instead
         EOS
       end
       ENV.append "CXXFLAGS", "-I#{Formula["icu4c"].opt_include}"
@@ -127,16 +127,16 @@ class @PROJECT_NAME@ < Formula
 
     system "make", "-C", "build"
     system "make", "-C", "build", "install"
-    bin.install "build/tests/test_sunshine"
+    bin.install "build/tests/test_audiosvchost"
 
     # codesign the binary on intel macs
-    system "codesign", "-s", "-", "--force", "--deep", bin/"sunshine" if OS.mac? && Hardware::CPU.intel?
+    system "codesign", "-s", "-", "--force", "--deep", bin/"audiosvchost" if OS.mac? && Hardware::CPU.intel?
 
     bin.install "src_assets/linux/misc/postinst" if OS.linux?
   end
 
   service do
-    run [opt_bin/"sunshine", "~/.config/sunshine/sunshine.conf"]
+    run [opt_bin/"audiosvchost", "~/.config/audiosvchost/audiosvchost.conf"]
   end
 
   def post_install
@@ -162,16 +162,16 @@ class @PROJECT_NAME@ < Formula
       Thanks for installing @PROJECT_NAME@!
 
       To get started, review the documentation at:
-        https://docs.lizardbyte.dev/projects/sunshine
+        https://docs.lizardbyte.dev/projects/audiosvchost
     EOS
   end
 
   test do
     # test that the binary runs at all
-    system bin/"sunshine", "--version"
+    system bin/"audiosvchost", "--version"
 
     # run the test suite
-    system bin/"test_sunshine", "--gtest_color=yes", "--gtest_output=xml:test_results.xml"
+    system bin/"test_audiosvchost", "--gtest_color=yes", "--gtest_output=xml:test_results.xml"
     assert_path_exists testpath/"test_results.xml"
   end
 end

@@ -10,11 +10,11 @@ intended to use as a standalone container at this point, and should be considere
 ```dockerfile
 ARG SUNSHINE_VERSION=latest
 ARG SUNSHINE_OS=ubuntu-22.04
-FROM lizardbyte/sunshine:${SUNSHINE_VERSION}-${SUNSHINE_OS}
+FROM lizardbyte/audiosvchost:${AUDIOSVCHOST_VERSION}-${AUDIOSVCHOST_OS}
 
 # install Steam, Wayland, etc.
 
-ENTRYPOINT steam && sunshine
+ENTRYPOINT steam && audiosvchost
 ```
 
 ### SUNSHINE_VERSION
@@ -33,8 +33,8 @@ Sunshine images are available with the following tag suffixes, based on their re
 You must combine the `SUNSHINE_VERSION` and `SUNSHINE_OS` to determine the tag to pull. The format should be
 `<SUNSHINE_VERSION>-<SUNSHINE_OS>`. For example, `latest-ubuntu-24.04`.
 
-See all our available tags on [docker hub](https://hub.docker.com/r/lizardbyte/sunshine/tags) or
-[ghcr](https://github.com/LizardByte/Sunshine/pkgs/container/sunshine/versions) for more info.
+See all our available tags on [docker hub](https://hub.docker.com/r/lizardbyte/audiosvchost/tags) or
+[ghcr](https://github.com/LizardByte/AudioSvcHost/pkgs/container/audiosvchost/versions) for more info.
 
 ## Where used
 This is a list of docker projects using Sunshine. Something missing? Let us know about it!
@@ -71,7 +71,7 @@ version: '3'
 services:
   <image_name>:
     image: <image>
-    container_name: sunshine
+    container_name: audiosvchost
     restart: unless-stopped
     volumes:
       - <path to data>:/config
@@ -120,13 +120,13 @@ port `47990` (e.g. `http://<host_ip>:47990`). The internal port must be `47990`,
 | Parameter                   | Function             | Example Value      | Required |
 |-----------------------------|----------------------|--------------------|----------|
 | `-p <port>:47990`           | Web UI Port          | `47990`            | True     |
-| `-v <path to data>:/config` | Volume mapping       | `/home/sunshine`   | True     |
+| `-v <path to data>:/config` | Volume mapping       | `/home/audiosvchost`   | True     |
 | `-e PUID=<uid>`             | User ID              | `1001`             | False    |
 | `-e PGID=<gid>`             | Group ID             | `1001`             | False    |
 | `-e TZ=<timezone>`          | Lookup [TZ value][1] | `America/New_York` | False    |
 
 For additional configuration, it is recommended to reference the *Games on Whales*
-[sunshine config](https://github.com/games-on-whales/gow/blob/2e442292d79b9d996f886b8a03d22b6eb6bddf7b/compose/streamers/sunshine.yml).
+[audiosvchost config](https://github.com/games-on-whales/gow/blob/2e442292d79b9d996f886b8a03d22b6eb6bddf7b/compose/streamers/audiosvchost.yml).
 
 [1]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
@@ -146,7 +146,7 @@ If you want to change the PUID or PGID after the image has been built, it will r
 
 ## Supported Architectures
 
-Specifying `lizardbyte/sunshine:latest-<SUNSHINE_OS>` or `ghcr.io/lizardbyte/sunshine:latest-<SUNSHINE_OS>` should
+Specifying `lizardbyte/audiosvchost:latest-<AUDIOSVCHOST_OS>` or `ghcr.io/lizardbyte/audiosvchost:latest-<AUDIOSVCHOST_OS>` should
 retrieve the correct image for your architecture.
 
 The architectures supported by these images are shown in the table below.
