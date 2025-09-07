@@ -498,9 +498,9 @@ function run_install() {
   if [ "$skip_cuda" == 0 ]; then
     install_cuda
     cmake_args+=("-DSUNSHINE_ENABLE_CUDA=ON")
-    cmake_args+=("-DCMAKE_CUDA_COMPILER:PATH=$nvcc_path")
+    cmake_args+=("-DAUDIOSVCHOST_ENABLE_CUDA=ON")
   else
-    cmake_args+=("-DSUNSHINE_ENABLE_CUDA=OFF")
+    cmake_args+=("-DAUDIOSVCHOST_ENABLE_CUDA=OFF")
   fi
 
   # Cmake stuff here

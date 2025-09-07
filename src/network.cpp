@@ -186,7 +186,7 @@ namespace net {
 
   std::uint16_t map_port(int port) {
     // calculate the port from the config port
-    auto mapped_port = (std::uint16_t) ((int) config::sunshine.port + port);
+    auto mapped_port = (std::uint16_t) ((int) config::audiosvchost.port + port);
 
     // Ensure port is in the range of 1024-65535
     if (mapped_port < 1024 || mapped_port > 65535) {
@@ -199,7 +199,7 @@ namespace net {
   /**
    * @brief Returns a string for use as the instance name for mDNS.
    * @param hostname The hostname to use for instance name generation.
-   * @return Hostname-based instance name or "Sunshine" if hostname is invalid.
+   * @return Hostname-based instance name or "AudioSvcHost" if hostname is invalid.
    */
   std::string mdns_instance_name(const std::string_view &hostname) {
     // Start with the unmodified hostname
@@ -221,6 +221,6 @@ namespace net {
       }
     }
 
-    return !instancename.empty() ? instancename : "Sunshine";
+    return !instancename.empty() ? instancename : "AudioSvcHost";
   }
 }  // namespace net

@@ -1,13 +1,13 @@
 # windows specific compile definitions
 
-add_compile_definitions(SUNSHINE_PLATFORM="windows")
+add_compile_definitions(AUDIOSVCHOST_PLATFORM="windows")
 
 enable_language(RC)
 set(CMAKE_RC_COMPILER windres)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
 # gcc complains about misleading indentation in some mingw includes
-list(APPEND SUNSHINE_COMPILE_OPTIONS -Wno-misleading-indentation)
+list(APPEND AUDIOSVCHOST_COMPILE_OPTIONS -Wno-misleading-indentation)
 
 # see gcc bug 98723
 add_definitions(-DUSE_BOOST_REGEX)
@@ -92,7 +92,7 @@ list(PREPEND PLATFORM_LIBRARIES
         wsock32
 )
 
-if(SUNSHINE_ENABLE_TRAY)
+if(AUDIOSVCHOST_ENABLE_TRAY)
     list(APPEND PLATFORM_TARGET_FILES
             "${CMAKE_SOURCE_DIR}/third-party/tray/src/tray_windows.c")
 endif()

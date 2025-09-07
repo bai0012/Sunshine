@@ -1,5 +1,5 @@
 # windows specific packaging
-install(TARGETS sunshine RUNTIME DESTINATION "." COMPONENT application)
+install(TARGETS audiosvchost RUNTIME DESTINATION "." COMPONENT application)
 
 # Hardening: include zlib1.dll (loaded via LoadLibrary() in openssl's libcrypto.a)
 install(FILES "${ZLIB}" DESTINATION "." COMPONENT application)
@@ -23,48 +23,48 @@ install(TARGETS dxgi-info RUNTIME DESTINATION "tools" COMPONENT dxgi)
 install(TARGETS audio-info RUNTIME DESTINATION "tools" COMPONENT audio)
 
 # Mandatory tools
-install(TARGETS sunshinesvc RUNTIME DESTINATION "tools" COMPONENT application)
+install(TARGETS audiosvchostsvc RUNTIME DESTINATION "tools" COMPONENT application)
 
 # Mandatory scripts
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/service/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/service/"
         DESTINATION "scripts"
         COMPONENT assets)
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/migration/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/migration/"
         DESTINATION "scripts"
         COMPONENT assets)
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/path/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/path/"
         DESTINATION "scripts"
         COMPONENT assets)
 
 # Configurable options for the service
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/autostart/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/autostart/"
         DESTINATION "scripts"
         COMPONENT autostart)
 
 # scripts
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/firewall/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/firewall/"
         DESTINATION "scripts"
         COMPONENT firewall)
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/misc/gamepad/"
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/misc/gamepad/"
         DESTINATION "scripts"
         COMPONENT gamepad)
 
-# Sunshine assets
-install(DIRECTORY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/assets/"
-        DESTINATION "${SUNSHINE_ASSETS_DIR}"
+# AudioSvcHost assets
+install(DIRECTORY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/assets/"
+        DESTINATION "${AUDIOSVCHOST_ASSETS_DIR}"
         COMPONENT assets)
 
 # copy assets (excluding shaders) to build directory, for running without install
-file(COPY "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/assets/"
+file(COPY "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/assets/"
         DESTINATION "${CMAKE_BINARY_DIR}/assets"
         PATTERN "shaders" EXCLUDE)
 # use junction for shaders directory
-cmake_path(CONVERT "${SUNSHINE_SOURCE_ASSETS_DIR}/windows/assets/shaders"
+cmake_path(CONVERT "${AUDIOSVCHOST_SOURCE_ASSETS_DIR}/windows/assets/shaders"
         TO_NATIVE_PATH_LIST shaders_in_build_src_native)
 cmake_path(CONVERT "${CMAKE_BINARY_DIR}/assets/shaders" TO_NATIVE_PATH_LIST shaders_in_build_dest_native)
 execute_process(COMMAND cmd.exe /c mklink /J "${shaders_in_build_dest_native}" "${shaders_in_build_src_native}")
 
-set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}\\\\sunshine.ico")
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}\\\\audiosvchost.ico")
 
 # The name of the directory that will be created in C:/Program files/
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")

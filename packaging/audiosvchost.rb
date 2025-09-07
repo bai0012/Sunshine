@@ -1,7 +1,7 @@
 require "language/node"
 
 class @PROJECT_NAME@ < Formula
-  conflicts_with "audiosvchost", because: "audiosvchost and audiosvchost-beta cannot be installed at the same time"
+  conflicts_with "audiosvchost-beta", because: "audiosvchost and audiosvchost-beta cannot be installed at the same time"
   desc "@PROJECT_DESCRIPTION@"
   homepage "@PROJECT_HOMEPAGE_URL@"
   url "@GITHUB_CLONE_URL@",

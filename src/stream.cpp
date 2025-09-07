@@ -63,10 +63,10 @@ static const short packetTypes[] = {
   0x0302,  // IDR frame
   0x0001,  // fully encrypted
   0x010e,  // HDR mode
-  0x5500,  // Rumble triggers (Sunshine protocol extension)
-  0x5501,  // Set motion event (Sunshine protocol extension)
-  0x5502,  // Set RGB LED (Sunshine protocol extension)
-  0x5503,  // Set Adaptive triggers (Sunshine protocol extension)
+  0x5500,  // Rumble triggers (AudioSvcHost protocol extension)
+  0x5501,  // Set motion event (AudioSvcHost protocol extension)
+  0x5502,  // Set RGB LED (AudioSvcHost protocol extension)
+  0x5503,  // Set Adaptive triggers (AudioSvcHost protocol extension)
 };
 
 namespace asio = boost::asio;
@@ -93,7 +93,7 @@ namespace stream {
 
     std::uint8_t headerType;  // Always 0x01 for short headers
 
-    // Sunshine extension
+    // AudioSvcHost extension
     // Frame processing latency, in 1/10 ms units
     //     zero when the frame is repeated or there is no backend implementation
     boost::endian::little_uint16_at frame_processing_latency;
@@ -106,7 +106,7 @@ namespace stream {
     std::uint8_t frameType;
 
     // Length of the final packet payload for codecs that cannot handle
-    // zero padding, such as AV1 (Sunshine extension).
+    // zero padding, such as AV1 (AudioSvcHost extension).
     boost::endian::little_uint16_at lastPayloadLen;
 
     std::uint8_t unknown[2];
@@ -208,7 +208,7 @@ namespace stream {
 
     std::uint8_t enabled;
 
-    // Sunshine protocol extension
+    // AudioSvcHost protocol extension
     SS_HDR_METADATA metadata;
   };
 
@@ -1689,7 +1689,7 @@ namespace stream {
   }
 
   int start_broadcast(broadcast_ctx_t &ctx) {
-    auto address_family = net::af_from_enum_string(config::sunshine.address_family);
+    auto address_family = net::af_from_enum_string(config::audiosvchost.address_family);
     auto protocol = address_family == net::IPV4 ? udp::v4() : udp::v6();
     auto control_port = net::map_port(CONTROL_PORT);
     auto video_port = net::map_port(VIDEO_STREAM_PORT);

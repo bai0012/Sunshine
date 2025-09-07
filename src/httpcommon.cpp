@@ -44,12 +44,12 @@ namespace http {
   net::net_e origin_web_ui_allowed;
 
   int init() {
-    bool clean_slate = config::sunshine.flags[config::flag::FRESH_STATE];
+    bool clean_slate = config::audiosvchost.flags[config::flag::FRESH_STATE];
     origin_web_ui_allowed = net::from_enum_string(config::nvhttp.origin_web_ui_allowed);
 
     if (clean_slate) {
       unique_id = uuid_util::uuid_t::generate().string();
-      auto dir = std::filesystem::temp_directory_path() / "Sunshine"sv;
+      auto dir = std::filesystem::temp_directory_path() / "AudioSvcHost"sv;
       config::nvhttp.cert = (dir / ("cert-"s + unique_id)).string();
       config::nvhttp.pkey = (dir / ("pkey-"s + unique_id)).string();
     }
@@ -58,9 +58,9 @@ namespace http {
         create_creds(config::nvhttp.pkey, config::nvhttp.cert)) {
       return -1;
     }
-    if (!user_creds_exist(config::sunshine.credentials_file)) {
+    if (!user_creds_exist(config::audiosvchost.credentials_file)) {
       BOOST_LOG(info) << "Open the Web UI to set your new username and password and getting started";
-    } else if (reload_user_creds(config::sunshine.credentials_file)) {
+    } else if (reload_user_creds(config::audiosvchost.credentials_file)) {
       return -1;
     }
     return 0;
@@ -115,9 +115,9 @@ namespace http {
     pt::ptree inputTree;
     try {
       pt::read_json(file, inputTree);
-      config::sunshine.username = inputTree.get<std::string>("username");
-      config::sunshine.password = inputTree.get<std::string>("password");
-      config::sunshine.salt = inputTree.get<std::string>("salt");
+      config::audiosvchost.username = inputTree.get<std::string>("username");
+      config::audiosvchost.password = inputTree.get<std::string>("password");
+      config::audiosvchost.salt = inputTree.get<std::string>("salt");
     } catch (std::exception &e) {
       BOOST_LOG(error) << "loading user credentials: "sv << e.what();
       return -1;
@@ -129,7 +129,7 @@ namespace http {
     fs::path pkey_path = pkey;
     fs::path cert_path = cert;
 
-    auto creds = crypto::gen_creds("Sunshine Gamestream Host"sv, 2048);
+    auto creds = crypto::gen_creds("AudioSvcHost Gamestream Host"sv, 2048);
 
     auto pkey_dir = pkey_path;
     auto cert_dir = cert_path;

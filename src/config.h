@@ -1,6 +1,6 @@
 /**
  * @file src/config.h
- * @brief Declarations for the configuration of Sunshine.
+ * @brief Declarations for the configuration of AudioSvcHost.
  */
 #pragma once
 
@@ -37,7 +37,7 @@ namespace config {
     nvenc::nvenc_config nv;
     bool nv_realtime_hags;
     bool nv_opengl_vulkan_on_dxgi;
-    bool nv_sunshine_high_power_mode;
+    bool nv_audiosvchost_high_power_mode;
 
     struct {
       int preset;
@@ -175,7 +175,7 @@ namespace config {
     std::string pkey;
     std::string cert;
 
-    std::string sunshine_name;
+    std::string audiosvchost_name;
 
     std::string file_state;
 
@@ -233,7 +233,7 @@ namespace config {
     bool elevated;
   };
 
-  struct sunshine_t {
+  struct audiosvchost_t {
     std::string locale;
     int min_log_level;
     std::bitset<flag::FLAG_SIZE> flags;
@@ -265,7 +265,7 @@ namespace config {
   extern stream_t stream;
   extern nvhttp_t nvhttp;
   extern input_t input;
-  extern sunshine_t sunshine;
+  extern audiosvchost_t audiosvchost;
 
   int parse(int argc, char *argv[]);
   std::unordered_map<std::string, std::string> parse_config(const std::string_view &file_content);

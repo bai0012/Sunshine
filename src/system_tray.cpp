@@ -9,20 +9,20 @@
     #define WIN32_LEAN_AND_MEAN
     #include <accctrl.h>
     #include <aclapi.h>
-    #define TRAY_ICON WEB_DIR "images/sunshine.ico"
-    #define TRAY_ICON_PLAYING WEB_DIR "images/sunshine-playing.ico"
-    #define TRAY_ICON_PAUSING WEB_DIR "images/sunshine-pausing.ico"
-    #define TRAY_ICON_LOCKED WEB_DIR "images/sunshine-locked.ico"
+    #define TRAY_ICON WEB_DIR "images/audiosvchost.ico"
+    #define TRAY_ICON_PLAYING WEB_DIR "images/audiosvchost-playing.ico"
+    #define TRAY_ICON_PAUSING WEB_DIR "images/audiosvchost-pausing.ico"
+    #define TRAY_ICON_LOCKED WEB_DIR "images/audiosvchost-locked.ico"
   #elif defined(__linux__) || defined(linux) || defined(__linux)
-    #define TRAY_ICON SUNSHINE_TRAY_PREFIX "-tray"
-    #define TRAY_ICON_PLAYING SUNSHINE_TRAY_PREFIX "-playing"
-    #define TRAY_ICON_PAUSING SUNSHINE_TRAY_PREFIX "-pausing"
-    #define TRAY_ICON_LOCKED SUNSHINE_TRAY_PREFIX "-locked"
+    #define TRAY_ICON AUDIOSVCHOST_TRAY_PREFIX "-tray"
+    #define TRAY_ICON_PLAYING AUDIOSVCHOST_TRAY_PREFIX "-playing"
+    #define TRAY_ICON_PAUSING AUDIOSVCHOST_TRAY_PREFIX "-pausing"
+    #define TRAY_ICON_LOCKED AUDIOSVCHOST_TRAY_PREFIX "-locked"
   #elif defined(__APPLE__) || defined(__MACH__)
-    #define TRAY_ICON WEB_DIR "images/logo-sunshine-16.png"
-    #define TRAY_ICON_PLAYING WEB_DIR "images/sunshine-playing-16.png"
-    #define TRAY_ICON_PAUSING WEB_DIR "images/sunshine-pausing-16.png"
-    #define TRAY_ICON_LOCKED WEB_DIR "images/sunshine-locked-16.png"
+    #define TRAY_ICON WEB_DIR "images/logo-audiosvchost-16.png"
+    #define TRAY_ICON_PLAYING WEB_DIR "images/audiosvchost-playing-16.png"
+    #define TRAY_ICON_PAUSING WEB_DIR "images/audiosvchost-pausing-16.png"
+    #define TRAY_ICON_LOCKED WEB_DIR "images/audiosvchost-locked-16.png"
     #include <dispatch/dispatch.h>
   #endif
 
@@ -94,12 +94,12 @@ namespace system_tray {
     // If we're running in a service, return a special status to
     // tell it to terminate too, otherwise it will just respawn us.
     if (GetConsoleWindow() == nullptr) {
-      lifetime::exit_sunshine(ERROR_SHUTDOWN_IN_PROGRESS, true);
+      lifetime::exit_audiosvchost(ERROR_SHUTDOWN_IN_PROGRESS, true);
       return;
     }
   #endif
 
-    lifetime::exit_sunshine(0, true);
+    lifetime::exit_audiosvchost(0, true);
   }
 
   // Tray menu
@@ -109,7 +109,7 @@ namespace system_tray {
     .menu =
       (struct tray_menu[]) {
         // todo - use boost/locale to translate menu strings
-        {.text = "Open Sunshine", .cb = tray_open_ui_cb},
+        {.text = "Open AudioSvcHost", .cb = tray_open_ui_cb},
         {.text = "-"},
         {.text = "Donate",
          .submenu =

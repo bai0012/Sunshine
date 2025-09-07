@@ -47,7 +47,7 @@ namespace display_device {
      * to be deactivated before the stream starts. In this case the audio context
      * will be captured for this display and can be restored once it is turned back.
      */
-    class sunshine_audio_context_t: public AudioContextInterface {
+    class audiosvchost_audio_context_t: public AudioContextInterface {
     public:
       [[nodiscard]] bool capture() override {
         return context_scheduler.execute([](auto &audio_context) {
@@ -616,7 +616,7 @@ namespace display_device {
 #ifdef _WIN32
       return std::make_unique<SettingsManager>(
         std::make_shared<WinDisplayDevice>(std::make_shared<WinApiLayer>()),
-        std::make_shared<sunshine_audio_context_t>(),
+        std::make_shared<audiosvchost_audio_context_t>(),
         std::make_unique<PersistentState>(
           std::make_shared<FileSettingsPersistence>(persistence_filepath)
         ),

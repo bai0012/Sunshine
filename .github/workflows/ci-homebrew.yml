@@ -219,7 +219,7 @@ jobs:
 
           # update the formula
           sed -i 's/class AudioSvcHost < Formula/class AudioSvcHostBeta < Formula/' $formula_file
-          sed -i 's/conflicts_with "audiosvchost"/conflicts_with "audiosvchost-beta"/' $formula_file
+          sed -i 's/conflicts_with "audiosvchost-beta"/conflicts_with "audiosvchost"/' $formula_file
 
           # print new file
           echo "New formula:"

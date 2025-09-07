@@ -17,6 +17,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <Simple-Web-Server/server_https.hpp>
+#include <Simple-Web-Server/server_https.hpp>
 #include <Simple-Web-Server/server_http.hpp>
 
 // local includes
@@ -45,80 +47,7 @@ namespace nvhttp {
 
   crypto::cert_chain_t cert_chain;
 
-  class SunshineHTTPSServer: public SimpleWeb::ServerBase<SunshineHTTPS> {
-  public:
-    SunshineHTTPSServer(const std::string &certification_file, const std::string &private_key_file):
-        ServerBase<SunshineHTTPS>::ServerBase(443),
-        context(boost::asio::ssl::context::tls_server) {
-      // Disabling TLS 1.0 and 1.1 (see RFC 8996)
-      context.set_options(boost::asio::ssl::context::no_tlsv1);
-      context.set_options(boost::asio::ssl::context::no_tlsv1_1);
-      context.use_certificate_chain_file(certification_file);
-      context.use_private_key_file(private_key_file, boost::asio::ssl::context::pem);
-    }
-
-    std::function<int(SSL *)> verify;
-    std::function<void(std::shared_ptr<Response>, std::shared_ptr<Request>)> on_verify_failed;
-
-  protected:
-    boost::asio::ssl::context context;
-
-    void after_bind() override {
-      if (verify) {
-        context.set_verify_mode(boost::asio::ssl::verify_peer | boost::asio::ssl::verify_fail_if_no_peer_cert | boost::asio::ssl::verify_client_once);
-        context.set_verify_callback([](int verified, boost::asio::ssl::verify_context &ctx) {
-          // To respond with an error message, a connection must be established
-          return 1;
-        });
-      }
-    }
-
-    // This is Server<HTTPS>::accept() with SSL validation support added
-    void accept() override {
-      auto connection = create_connection(*io_service, context);
-
-      acceptor->async_accept(connection->socket->lowest_layer(), [this, connection](const SimpleWeb::error_code &ec) {
-        auto lock = connection->handler_runner->continue_lock();
-        if (!lock) {
-          return;
-        }
-
-        if (ec != SimpleWeb::error::operation_aborted) {
-          this->accept();
-        }
-
-        auto session = std::make_shared<Session>(config.max_request_streambuf_size, connection);
-
-        if (!ec) {
-          boost::asio::ip::tcp::no_delay option(true);
-          SimpleWeb::error_code ec;
-          session->connection->socket->lowest_layer().set_option(option, ec);
-
-          session->connection->set_timeout(config.timeout_request);
-          session->connection->socket->async_handshake(boost::asio::ssl::stream_base::server, [this, session](const SimpleWeb::error_code &ec) {
-            session->connection->cancel_timeout();
-            auto lock = session->connection->handler_runner->continue_lock();
-            if (!lock) {
-              return;
-            }
-            if (!ec) {
-              if (verify && !verify(session->connection->socket->native_handle())) {
-                this->write(session, on_verify_failed);
-              } else {
-                this->read(session);
-              }
-            } else if (this->on_error) {
-              this->on_error(session->request, ec);
-            }
-          });
-        } else if (this->on_error) {
-          this->on_error(session->request, ec);
-        }
-      });
-    }
-  };
-
-  using https_server_t = SunshineHTTPSServer;
+  using https_server_t = SimpleWeb::Server<SimpleWeb::HTTPS>;
   using http_server_t = SimpleWeb::Server<SimpleWeb::HTTP>;
 
   struct conf_intern_t {
@@ -142,10 +71,10 @@ namespace nvhttp {
   std::atomic<uint32_t> session_id_counter;
 
   using args_t = SimpleWeb::CaseInsensitiveMultimap;
-  using resp_https_t = std::shared_ptr<typename SimpleWeb::ServerBase<SunshineHTTPS>::Response>;
-  using req_https_t = std::shared_ptr<typename SimpleWeb::ServerBase<SunshineHTTPS>::Request>;
-  using resp_http_t = std::shared_ptr<typename SimpleWeb::ServerBase<SimpleWeb::HTTP>::Response>;
-  using req_http_t = std::shared_ptr<typename SimpleWeb::ServerBase<SimpleWeb::HTTP>::Request>;
+  using resp_https_t = https_server_t::Response;
+  using req_https_t = https_server_t::Request;
+  using resp_http_t = http_server_t::Response;
+  using req_http_t = http_server_t::Request;
 
   enum class op_e {
     ADD,  ///< Add certificate
@@ -272,7 +201,7 @@ namespace nvhttp {
     named_cert.uuid = uuid_util::uuid_t::generate().string();
     client.named_devices.emplace_back(named_cert);
 
-    if (!config::sunshine.flags[config::flag::FRESH_STATE]) {
+    if (!config::audiosvchost.flags[config::flag::FRESH_STATE]) {
       save_state();
     }
   }
@@ -495,7 +424,7 @@ namespace nvhttp {
   struct tunnel;
 
   template<>
-  struct tunnel<SunshineHTTPS> {
+  struct tunnel<SimpleWeb::HTTPS> {
     static auto constexpr to_string = "HTTPS"sv;
   };
 
@@ -579,7 +508,7 @@ namespace nvhttp {
         auto ptr = map_id_sess.emplace(sess.client.uniqueID, std::move(sess)).first;
 
         ptr->second.async_insert_pin.salt = std::move(get_arg(args, "salt"));
-        if (config::sunshine.flags[config::flag::PIN_STDIN]) {
+        if (config::audiosvchost.flags[config::flag::PIN_STDIN]) {
           std::string pin;
 
           std::cout << "Please insert pin: "sv;
@@ -587,7 +516,7 @@ namespace nvhttp {
 
           getservercert(ptr->second, tree, pin);
         } else {
-#if defined SUNSHINE_TRAY && SUNSHINE_TRAY >= 1
+#if defined(AUDIOSVCHOST_TRAY) && AUDIOSVCHOST_TRAY >= 1
           system_tray::update_tray_require_pin();
 #endif
           ptr->second.async_insert_pin.response = std::move(response);
@@ -674,11 +603,11 @@ namespace nvhttp {
   }
 
   template<class T>
-  void serverinfo(std::shared_ptr<typename SimpleWeb::ServerBase<T>::Response> response, std::shared_ptr<typename SimpleWeb::ServerBase<T>::Request> request) {
+  void serverinfo(std::shared_ptr<typename SimpleWeb::Server<T>::Response> response, std::shared_ptr<typename SimpleWeb::Server<T>::Request> request) {
     print_req<T>(request);
 
     int pair_status = 0;
-    if constexpr (std::is_same_v<SunshineHTTPS, T>) {
+    if constexpr (std::is_same_v<SimpleWeb::HTTPS, T>) {
       auto args = request->parse_query_string();
       auto clientID = args.find("uniqueid"s);
 
@@ -692,7 +621,7 @@ namespace nvhttp {
     pt::ptree tree;
 
     tree.put("root.<xmlattr>.status_code", 200);
-    tree.put("root.hostname", config::nvhttp.sunshine_name);
+    tree.put("root.hostname", config::nvhttp.audiosvchost_name);
 
     tree.put("root.appversion", VERSION);
     tree.put("root.GfeVersion", GFE_VERSION);
@@ -703,7 +632,7 @@ namespace nvhttp {
 
     // Only include the MAC address for requests sent from paired clients over HTTPS.
     // For HTTP requests, use a placeholder MAC address that Moonlight knows to ignore.
-    if constexpr (std::is_same_v<SunshineHTTPS, T>) {
+    if constexpr (std::is_same_v<SimpleWeb::HTTPS, T>) {
       tree.put("root.mac", platf::get_mac_address(net::addr_to_normalized_string(local_endpoint.address())));
     } else {
       tree.put("root.mac", "00:00:00:00:00:00");
@@ -780,7 +709,7 @@ namespace nvhttp {
   }
 
   void applist(resp_https_t response, req_https_t request) {
-    print_req<SunshineHTTPS>(request);
+    print_req<SimpleWeb::HTTPS>(request);
 
     pt::ptree tree;
 
@@ -808,7 +737,7 @@ namespace nvhttp {
   }
 
   void launch(bool &host_audio, resp_https_t response, req_https_t request) {
-    print_req<SunshineHTTPS>(request);
+    print_req<SimpleWeb::HTTPS>(request);
 
     pt::ptree tree;
     bool revert_display_configuration {false};
@@ -915,7 +844,7 @@ namespace nvhttp {
   }
 
   void resume(bool &host_audio, resp_https_t response, req_https_t request) {
-    print_req<SunshineHTTPS>(request);
+    print_req<SimpleWeb::HTTPS>(request);
 
     pt::ptree tree;
     auto g = util::fail_guard([&]() {
@@ -1002,7 +931,7 @@ namespace nvhttp {
   }
 
   void cancel(resp_https_t response, req_https_t request) {
-    print_req<SunshineHTTPS>(request);
+    print_req<SimpleWeb::HTTPS>(request);
 
     pt::ptree tree;
     auto g = util::fail_guard([&]() {
@@ -1027,7 +956,7 @@ namespace nvhttp {
   }
 
   void appasset(resp_https_t response, req_https_t request) {
-    print_req<SunshineHTTPS>(request);
+    print_req<SimpleWeb::HTTPS>(request);
 
     auto args = request->parse_query_string();
     auto app_image = proc::proc.get_app_image(util::from_view(get_arg(args, "appid")));
@@ -1049,16 +978,16 @@ namespace nvhttp {
 
     auto port_http = net::map_port(PORT_HTTP);
     auto port_https = net::map_port(PORT_HTTPS);
-    auto address_family = net::af_from_enum_string(config::sunshine.address_family);
+    auto address_family = net::af_from_enum_string(config::audiosvchost.address_family);
 
-    bool clean_slate = config::sunshine.flags[config::flag::FRESH_STATE];
+    bool clean_slate = config::audiosvchost.flags[config::flag::FRESH_STATE];
 
     if (!clean_slate) {
       load_state();
     }
 
-    auto pkey = file_handler::read_file(config::nvhttp.pkey.c_str());
-    auto cert = file_handler::read_file(config::nvhttp.cert.c_str());
+    auto pkey = file_handler::read_file(config::audiosvchost.pkey.c_str());
+    auto cert = file_handler::read_file(config::audiosvchost.cert.c_str());
     setup(pkey, cert);
 
     auto add_cert = std::make_shared<safe::queue_t<crypto::x509_t>>(30);
@@ -1067,7 +996,7 @@ namespace nvhttp {
     // launch will store it in host_audio
     bool host_audio {};
 
-    https_server_t https_server {config::nvhttp.cert, config::nvhttp.pkey};
+    https_server_t https_server {config::audiosvchost.cert, config::audiosvchost.pkey};
     http_server_t http_server;
 
     // Verify certificates after establishing connection
@@ -1131,10 +1060,10 @@ namespace nvhttp {
       tree.put("root.<xmlattr>.status_message"s, "The client is not authorized. Certificate verification failed."s);
     };
 
-    https_server.default_resource["GET"] = not_found<SunshineHTTPS>;
-    https_server.resource["^/serverinfo$"]["GET"] = serverinfo<SunshineHTTPS>;
+    https_server.default_resource["GET"] = not_found<SimpleWeb::HTTPS>;
+    https_server.resource["^/serverinfo$"]["GET"] = serverinfo<SimpleWeb::HTTPS>;
     https_server.resource["^/pair$"]["GET"] = [&add_cert](auto resp, auto req) {
-      pair<SunshineHTTPS>(add_cert, resp, req);
+      pair<SimpleWeb::HTTPS>(add_cert, resp, req);
     };
     https_server.resource["^/applist$"]["GET"] = applist;
     https_server.resource["^/appasset$"]["GET"] = appasset;

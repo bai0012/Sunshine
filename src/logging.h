@@ -16,7 +16,7 @@ extern boost::log::sources::severity_logger<int> info;
 extern boost::log::sources::severity_logger<int> warning;
 extern boost::log::sources::severity_logger<int> error;
 extern boost::log::sources::severity_logger<int> fatal;
-#ifdef SUNSHINE_TESTS
+#ifdef AUDIOSVCHOST_TESTS
 extern boost::log::sources::severity_logger<int> tests;
 #endif
 
@@ -51,7 +51,7 @@ namespace logging {
    * @param log_file The log file to write to.
    * @return An object that will deinitialize the logging system when it goes out of scope.
    * @examples
-   * log_init(2, "sunshine.log");
+   * log_init(2, "audiosvchost.log");
    * @examples_end
    */
   [[nodiscard]] std::unique_ptr<deinit_t> init(int min_log_level, const std::string &log_file);
@@ -80,7 +80,7 @@ namespace logging {
    * @brief Print help to stdout.
    * @param name The name of the program.
    * @examples
-   * print_help("sunshine");
+   * print_help("audiosvchost");
    * @examples_end
    */
   void print_help(const char *name);
@@ -106,7 +106,7 @@ namespace logging {
         message(message),
         units(units),
         interval(interval_in_seconds),
-        enabled(config::sunshine.min_log_level <= severity.default_severity()) {
+        enabled(config::audiosvchost.min_log_level <= severity.default_severity()) {
     }
 
     void collect_and_log(const T &value) {

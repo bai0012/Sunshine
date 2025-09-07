@@ -1,6 +1,6 @@
 /**
  * @file src/main.cpp
- * @brief Definitions for the main entry point for Sunshine.
+ * @brief The main entrypoint for AudioSvcHost.
  */
 // standard includes
 #include <codecvt>
@@ -71,7 +71,7 @@ LRESULT CALLBACK SessionMonitorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
       {
         // Terminate ourselves with a blocking exit call
         std::cout << "Received WM_ENDSESSION"sv << std::endl;
-        lifetime::exit_sunshine(0, false);
+        lifetime::exit_audiosvchost(0, false);
         return 0;
       }
     default:
@@ -82,7 +82,7 @@ LRESULT CALLBACK SessionMonitorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 WINAPI BOOL ConsoleCtrlHandler(DWORD type) {
   if (type == CTRL_CLOSE_EVENT) {
     BOOST_LOG(info) << "Console closed handler called";
-    lifetime::exit_sunshine(0, false);
+    lifetime::exit_audiosvchost(0, false);
   }
   return FALSE;
 }
@@ -112,7 +112,7 @@ void mainThreadLoop(const std::shared_ptr<safe::event_t<bool>> &shutdown_event) 
   while (true) {
     if (shutdown_event->peek()) {
       BOOST_LOG(info) << "Shutdown event detected, breaking main loop"sv;
-      if (tray_is_enabled && config::sunshine.system_tray) {
+      if (tray_is_enabled && config::audiosvchost.system_tray) {
         system_tray::end_tray();
       }
       break;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  auto log_deinit_guard = logging::init(config::sunshine.min_log_level, config::sunshine.log_file);
+  auto log_deinit_guard = logging::init(config::audiosvchost.min_log_level, config::audiosvchost.log_file);
   if (!log_deinit_guard) {
     BOOST_LOG(error) << "Logging failed to initialize"sv;
   }
@@ -172,10 +172,10 @@ int main(int argc, char *argv[]) {
   }
   config::modified_config_settings.clear();
 
-  if (!config::sunshine.cmd.name.empty()) {
-    auto fn = cmd_to_func.find(config::sunshine.cmd.name);
+  if (!config::audiosvchost.cmd.name.empty()) {
+    auto fn = cmd_to_func.find(config::audiosvchost.cmd.name);
     if (fn == std::end(cmd_to_func)) {
-      BOOST_LOG(fatal) << "Unknown command: "sv << config::sunshine.cmd.name;
+      BOOST_LOG(fatal) << "Unknown command: "sv << config::audiosvchost.cmd.name;
 
       BOOST_LOG(info) << "Possible commands:"sv;
       for (auto &[key, _] : cmd_to_func) {
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
       return 7;
     }
 
-    return fn->second(argv[0], config::sunshine.cmd.argc, config::sunshine.cmd.argv);
+    return fn->second(argv[0], config::audiosvchost.cmd.argc, config::audiosvchost.cmd.argv);
   }
 
   // Adding guard here first as it also performs recovery after crash,
@@ -199,9 +199,9 @@ int main(int argc, char *argv[]) {
 #ifdef _WIN32
   // Modify relevant NVIDIA control panel settings if the system has corresponding gpu
   if (nvprefs_instance.load()) {
-    // Restore global settings to the undo file left by improper termination of sunshine.exe
+    // Restore global settings to the undo file left by improper termination of audiosvchost.exe
     nvprefs_instance.restore_from_and_delete_undo_file_if_exists();
-    // Modify application settings for sunshine.exe
+    // Modify application settings for audiosvchost.exe
     nvprefs_instance.modify_application_profile();
     // Modify global settings, undo file is produced in the process to restore after improper termination
     nvprefs_instance.modify_global_profile();
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
     nvprefs_instance.unload();
   }
 
-  // Wait as long as possible to terminate Sunshine.exe during logoff/shutdown
+  // Wait as long as possible to terminate AudioSvcHost.exe during logoff/shutdown
   SetProcessShutdownParameters(0x100, SHUTDOWN_NORETRY);
 
   // We must create a hidden window to receive shutdown notifications since we load gdi32.dll
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
     session_monitor_join_thread_promise.set_value_at_thread_exit();
 
     WNDCLASSA wnd_class {};
-    wnd_class.lpszClassName = "SunshineSessionMonitorClass";
+    wnd_class.lpszClassName = "AudioSvcHostSessionMonitorClass";
     wnd_class.lpfnWndProc = SessionMonitorWindowProc;
     if (!RegisterClassA(&wnd_class)) {
       session_monitor_hwnd_promise.set_value(nullptr);
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
     auto wnd = CreateWindowExA(
       0,
       wnd_class.lpszClassName,
-      "Sunshine Session Monitor Window",
+      "AudioSvcHost Session Monitor Window",
       0,
       CW_USEDEFAULT,
       CW_USEDEFAULT,
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
     BOOST_LOG(info) << "Interrupt handler called"sv;
 
     auto task = []() {
-      BOOST_LOG(fatal) << "10 seconds passed, yet Sunshine's still running: Forcing shutdown"sv;
+      BOOST_LOG(fatal) << "10 seconds passed, yet AudioSvcHost's still running: Forcing shutdown"sv;
       logging::log_flush();
       lifetime::debug_trap();
     };
@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
     BOOST_LOG(info) << "Terminate handler called"sv;
 
     auto task = []() {
-      BOOST_LOG(fatal) << "10 seconds passed, yet Sunshine's still running: Forcing shutdown"sv;
+      BOOST_LOG(fatal) << "10 seconds passed, yet AudioSvcHost's still running: Forcing shutdown"sv;
       logging::log_flush();
       lifetime::debug_trap();
     };
@@ -350,7 +350,7 @@ int main(int argc, char *argv[]) {
     BOOST_LOG(fatal) << "HTTP interface failed to initialize"sv;
 
 #ifdef _WIN32
-    BOOST_LOG(fatal) << "To relaunch Sunshine successfully, use the shortcut in the Start Menu. Do not run Sunshine.exe manually."sv;
+    BOOST_LOG(fatal) << "To relaunch AudioSvcHost successfully, use the shortcut in the Start Menu. Do not run AudioSvcHost.exe manually."sv;
     std::this_thread::sleep_for(10s);
 #endif
 
@@ -378,13 +378,13 @@ int main(int argc, char *argv[]) {
 
 #ifdef _WIN32
   // If we're using the default port and GameStream is enabled, warn the user
-  if (config::sunshine.port == 47989 && is_gamestream_enabled()) {
-    BOOST_LOG(fatal) << "GameStream is still enabled in GeForce Experience! This *will* cause streaming problems with Sunshine!"sv;
-    BOOST_LOG(fatal) << "Disable GameStream on the SHIELD tab in GeForce Experience or change the Port setting on the Advanced tab in the Sunshine Web UI."sv;
+  if (config::audiosvchost.port == 47989 && is_gamestream_enabled()) {
+    BOOST_LOG(fatal) << "GameStream is still enabled in GeForce Experience! This *will* cause streaming problems with AudioSvcHost!"sv;
+    BOOST_LOG(fatal) << "Disable GameStream on the SHIELD tab in GeForce Experience or change the Port setting on the Advanced tab in the AudioSvcHost Web UI."sv;
   }
 #endif
 
-  if (tray_is_enabled && config::sunshine.system_tray) {
+  if (tray_is_enabled && config::audiosvchost.system_tray) {
     BOOST_LOG(info) << "Starting system tray"sv;
 #ifdef _WIN32
     // TODO: Windows has a weird bug where when running as a service and on the first Windows boot,

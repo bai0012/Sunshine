@@ -1,6 +1,6 @@
 /**
  * @file src/config.cpp
- * @brief Definitions for the configuration of Sunshine.
+ * @brief Definitions for the configuration of AudioSvcHost.
  */
 // standard includes
 #include <algorithm>
@@ -450,7 +450,7 @@ namespace config {
     {},  // nv
     true,  // nv_realtime_hags
     true,  // nv_opengl_vulkan_on_dxgi
-    true,  // nv_sunshine_high_power_mode
+    true,  // nv_audiosvchost_high_power_mode
     {},  // nv_legacy
 
     {
@@ -532,8 +532,8 @@ namespace config {
     PRIVATE_KEY_FILE,
     CERTIFICATE_FILE,
 
-    platf::get_host_name(),  // sunshine_name,
-    "sunshine_state.json"s,  // file_state
+    platf::get_host_name(),  // audiosvchost_name,
+    "audiosvchost_state.json"s,  // file_state
     {},  // external_ip
   };
 
@@ -564,7 +564,7 @@ namespace config {
     true,  // native pen/touch support
   };
 
-  sunshine_t sunshine {
+  audiosvchost_t audiosvchost {
     "en",  // locale
     2,  // min_log_level
     0,  // flags
@@ -572,11 +572,11 @@ namespace config {
     {},  // Username
     {},  // Password
     {},  // Password Salt
-    platf::appdata().string() + "/sunshine.conf",  // config file
+    platf::appdata().string() + "/audiosvchost.conf",  // config file
     {},  // cmd args
     47989,  // Base port number
     "ipv4",  // Address family
-    platf::appdata().string() + "/sunshine.log",  // log file
+    platf::appdata().string() + "/audiosvchost.log",  // log file
     false,  // notify_pre_releases
     true,  // system_tray
     {},  // prep commands
@@ -1008,16 +1008,16 @@ namespace config {
     while (*line != '\0') {
       switch (*line) {
         case '0':
-          config::sunshine.flags[config::flag::PIN_STDIN].flip();
+          config::audiosvchost.flags[config::flag::PIN_STDIN].flip();
           break;
         case '1':
-          config::sunshine.flags[config::flag::FRESH_STATE].flip();
+          config::audiosvchost.flags[config::flag::FRESH_STATE].flip();
           break;
         case '2':
-          config::sunshine.flags[config::flag::FORCE_VIDEO_HEADER_REPLACE].flip();
+          config::audiosvchost.flags[config::flag::FORCE_VIDEO_HEADER_REPLACE].flip();
           break;
         case 'p':
-          config::sunshine.flags[config::flag::UPNP].flip();
+          config::audiosvchost.flags[config::flag::UPNP].flip();
           break;
         default:
           BOOST_LOG(warning) << "config: Unrecognized flag: ["sv << *line << ']' << std::endl;
@@ -1044,7 +1044,7 @@ namespace config {
 #ifndef __ANDROID__
     // TODO: Android can possibly support this
     if (!fs::exists(stream.file_apps.c_str())) {
-      fs::copy_file(SUNSHINE_ASSETS_DIR "/apps.json", stream.file_apps);
+      fs::copy_file(AUDIOSVCHOST_ASSETS_DIR "/apps.json", stream.file_apps);
     }
 #endif
 
@@ -1070,7 +1070,7 @@ namespace config {
     bool_f(vars, "nvenc_h264_cavlc", video.nv.h264_cavlc);
     bool_f(vars, "nvenc_realtime_hags", video.nv_realtime_hags);
     bool_f(vars, "nvenc_opengl_vulkan_on_dxgi", video.nv_opengl_vulkan_on_dxgi);
-    bool_f(vars, "nvenc_latency_over_power", video.nv_sunshine_high_power_mode);
+    bool_f(vars, "nvenc_latency_over_power", video.nv_audiosvchost_high_power_mode);
 
 #if !defined(__ANDROID__) && !defined(__APPLE__)
     video.nv_legacy.preset = video.nv.quality_preset + 11;
@@ -1153,16 +1153,16 @@ namespace config {
 
     path_f(vars, "pkey", nvhttp.pkey);
     path_f(vars, "cert", nvhttp.cert);
-    string_f(vars, "sunshine_name", nvhttp.sunshine_name);
-    path_f(vars, "log_path", config::sunshine.log_file);
+    string_f(vars, "audiosvchost_name", nvhttp.audiosvchost_name);
+    path_f(vars, "log_path", config::audiosvchost.log_file);
     path_f(vars, "file_state", nvhttp.file_state);
 
     // Must be run after "file_state"
-    config::sunshine.credentials_file = config::nvhttp.file_state;
-    path_f(vars, "credentials_file", config::sunshine.credentials_file);
+    config::audiosvchost.credentials_file = config::nvhttp.file_state;
+    path_f(vars, "credentials_file", config::audiosvchost.credentials_file);
 
     string_f(vars, "external_ip", nvhttp.external_ip);
-    list_prep_cmd_f(vars, "global_prep_cmd", config::sunshine.prep_cmds);
+    list_prep_cmd_f(vars, "global_prep_cmd", config::audiosvchost.prep_cmds);
 
     string_f(vars, "audio_sink", audio.sink);
     string_f(vars, "virtual_sink", audio.virtual_sink);
@@ -1229,23 +1229,23 @@ namespace config {
     bool_f(vars, "high_resolution_scrolling", input.high_resolution_scrolling);
     bool_f(vars, "native_pen_touch", input.native_pen_touch);
 
-    bool_f(vars, "notify_pre_releases", sunshine.notify_pre_releases);
-    bool_f(vars, "system_tray", sunshine.system_tray);
+    bool_f(vars, "notify_pre_releases", audiosvchost.notify_pre_releases);
+    bool_f(vars, "system_tray", audiosvchost.system_tray);
 
-    int port = sunshine.port;
+    int port = audiosvchost.port;
     int_between_f(vars, "port"s, port, {1024 + nvhttp::PORT_HTTPS, 65535 - rtsp_stream::RTSP_SETUP_PORT});
-    sunshine.port = (std::uint16_t) port;
+    audiosvchost.port = (std::uint16_t) port;
 
-    string_restricted_f(vars, "address_family", sunshine.address_family, {"ipv4"sv, "both"sv});
+    string_restricted_f(vars, "address_family", audiosvchost.address_family, {"ipv4"sv, "both"sv});
 
     bool upnp = false;
     bool_f(vars, "upnp"s, upnp);
 
     if (upnp) {
-      config::sunshine.flags[config::flag::UPNP].flip();
+      config::audiosvchost.flags[config::flag::UPNP].flip();
     }
 
-    string_restricted_f(vars, "locale", config::sunshine.locale, {
+    string_restricted_f(vars, "locale", config::audiosvchost.locale, {
                                                                    "bg"sv,  // Bulgarian
                                                                    "cs"sv,  // Czech
                                                                    "de"sv,  // German
@@ -1275,24 +1275,24 @@ namespace config {
 
     if (!log_level_string.empty()) {
       if (log_level_string == "verbose"sv) {
-        sunshine.min_log_level = 0;
+        audiosvchost.min_log_level = 0;
       } else if (log_level_string == "debug"sv) {
-        sunshine.min_log_level = 1;
+        audiosvchost.min_log_level = 1;
       } else if (log_level_string == "info"sv) {
-        sunshine.min_log_level = 2;
+        audiosvchost.min_log_level = 2;
       } else if (log_level_string == "warning"sv) {
-        sunshine.min_log_level = 3;
+        audiosvchost.min_log_level = 3;
       } else if (log_level_string == "error"sv) {
-        sunshine.min_log_level = 4;
+        audiosvchost.min_log_level = 4;
       } else if (log_level_string == "fatal"sv) {
-        sunshine.min_log_level = 5;
+        audiosvchost.min_log_level = 5;
       } else if (log_level_string == "none"sv) {
-        sunshine.min_log_level = 6;
+        audiosvchost.min_log_level = 6;
       } else {
         // accept digit directly
         auto val = log_level_string[0];
         if (val >= '0' && val < '7') {
-          sunshine.min_log_level = val - '0';
+          audiosvchost.min_log_level = val - '0';
         }
       }
     }
@@ -1304,7 +1304,7 @@ namespace config {
       vars.erase(it);
     }
 
-    if (sunshine.min_log_level <= 3) {
+    if (audiosvchost.min_log_level <= 3) {
       for (auto &[var, _] : vars) {
         std::cout << "Warning: Unrecognized configurable option ["sv << var << ']' << std::endl;
       }
@@ -1334,9 +1334,9 @@ namespace config {
 #endif
       else if (*line == '-') {
         if (*(line + 1) == '-') {
-          sunshine.cmd.name = line + 2;
-          sunshine.cmd.argc = argc - x - 1;
-          sunshine.cmd.argv = argv + x + 1;
+          audiosvchost.cmd.name = line + 2;
+          audiosvchost.cmd.argc = argc - x - 1;
+          audiosvchost.cmd.argv = argv + x + 1;
 
           break;
         }
@@ -1349,7 +1349,7 @@ namespace config {
 
         auto pos = std::find(line, line_end, '=');
         if (pos == line_end) {
-          sunshine.config_file = line;
+          audiosvchost.config_file = line;
         } else {
           TUPLE_EL(var, 1, parse_option(line, line_end));
           if (!var) {
@@ -1375,12 +1375,12 @@ namespace config {
       file_handler::make_directory(platf::appdata().string());
 
       // Create empty config file if it does not exist
-      if (!fs::exists(sunshine.config_file)) {
-        std::ofstream {sunshine.config_file};
+      if (!fs::exists(audiosvchost.config_file)) {
+        std::ofstream {audiosvchost.config_file};
       }
 
       // Read config file
-      auto vars = parse_config(file_handler::read_file(sunshine.config_file.c_str()));
+      auto vars = parse_config(file_handler::read_file(audiosvchost.config_file.c_str()));
 
       for (auto &[name, value] : cmd_vars) {
         vars.insert_or_assign(std::move(name), std::move(value));
@@ -1403,7 +1403,7 @@ namespace config {
     // so that service instance will do the work instead.
 
     if (!config_loaded && !shortcut_launch) {
-      BOOST_LOG(fatal) << "To relaunch Sunshine successfully, use the shortcut in the Start Menu. Do not run Sunshine.exe manually."sv;
+      BOOST_LOG(fatal) << "To relaunch AudioSvcHost successfully, use the shortcut in the Start Menu. Do not run AudioSvcHost.exe manually."sv;
       std::this_thread::sleep_for(10s);
 #else
     if (!config_loaded) {
@@ -1420,7 +1420,7 @@ namespace config {
       // This is a relaunch as admin to start the service
       service_ctrl::start_service();
 
-      // Always return 1 to ensure Sunshine doesn't start normally
+      // Always return 1 to ensure AudioSvcHost doesn't start normally
       return 1;
     }
     if (shortcut_launch) {
@@ -1453,7 +1453,7 @@ namespace config {
       // Launch the web UI
       launch_ui();
 
-      // Always return 1 to ensure Sunshine doesn't start normally
+      // Always return 1 to ensure AudioSvcHost doesn't start normally
       return 1;
     }
 #endif

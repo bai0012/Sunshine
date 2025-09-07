@@ -104,7 +104,7 @@ namespace confighttp {
 
     const SimpleWeb::CaseInsensitiveMultimap headers {
       {"Content-Type", "application/json"},
-      {"WWW-Authenticate", R"(Basic realm="Sunshine Gamestream Host", charset="UTF-8")"},
+      {"WWW-Authenticate", R"(Basic realm="AudioSvcHost Gamestream Host", charset="UTF-8")"},
       {"X-Frame-Options", "DENY"},
       {"Content-Security-Policy", "frame-ancestors 'none';"}
     };
@@ -146,7 +146,7 @@ namespace confighttp {
     }
 
     // If credentials are shown, redirect the user to a /welcome page
-    if (config::sunshine.username.empty()) {
+    if (config::audiosvchost.username.empty()) {
       send_redirect(response, request, "/welcome");
       return false;
     }
@@ -170,9 +170,9 @@ namespace confighttp {
 
     auto username = authData.substr(0, index);
     auto password = authData.substr(index + 1);
-    auto hash = util::hex(crypto::hash(password + config::sunshine.salt)).to_string();
+    auto hash = util::hex(crypto::hash(password + config::audiosvchost.salt)).to_string();
 
-    if (!boost::iequals(username, config::sunshine.username) || hash != config::sunshine.password) {
+    if (!boost::iequals(username, config::audiosvchost.username) || hash != config::audiosvchost.password) {
       return false;
     }
 
@@ -384,7 +384,7 @@ namespace confighttp {
    */
   void getWelcomePage(resp_https_t response, req_https_t request) {
     print_req(request);
-    if (!config::sunshine.username.empty()) {
+    if (!config::audiosvchost.username.empty()) {
       send_redirect(response, request, "/");
       return;
     }
@@ -426,7 +426,7 @@ namespace confighttp {
   void getFaviconImage(resp_https_t response, req_https_t request) {
     print_req(request);
 
-    std::ifstream in(WEB_DIR "images/sunshine.ico", std::ios::binary);
+    std::ifstream in(WEB_DIR "images/audiosvchost.ico", std::ios::binary);
     SimpleWeb::CaseInsensitiveMultimap headers;
     headers.emplace("Content-Type", "image/x-icon");
     headers.emplace("X-Frame-Options", "DENY");
@@ -441,10 +441,10 @@ namespace confighttp {
    * @todo combine function with getFaviconImage and possibly getNodeModules
    * @todo use mime_types map
    */
-  void getSunshineLogoImage(resp_https_t response, req_https_t request) {
+  void getLogoImage(resp_https_t response, req_https_t request) {
     print_req(request);
 
-    std::ifstream in(WEB_DIR "images/logo-sunshine-45.png", std::ios::binary);
+    std::ifstream in(WEB_DIR "images/logo-audiosvchost-45.png", std::ios::binary);
     SimpleWeb::CaseInsensitiveMultimap headers;
     headers.emplace("Content-Type", "image/png");
     headers.emplace("X-Frame-Options", "DENY");
@@ -524,7 +524,7 @@ namespace confighttp {
       std::string content = file_handler::read_file(config::stream.file_apps.c_str());
       nlohmann::json file_tree = nlohmann::json::parse(content);
 
-      // Legacy versions of Sunshine used strings for boolean and integers, let's convert them
+      // Legacy versions of AudioSvcHost used strings for boolean and integers, let's convert them
       // List of keys to convert to boolean
       std::vector<std::string> boolean_keys = {
         "exclude-global-prep-cmd",
@@ -841,10 +841,10 @@ namespace confighttp {
 
     nlohmann::json output_tree;
     output_tree["status"] = true;
-    output_tree["platform"] = SUNSHINE_PLATFORM;
+    output_tree["platform"] = AUDIOSVCHOST_PLATFORM;
     output_tree["version"] = PROJECT_VERSION;
 
-    auto vars = config::parse_config(file_handler::read_file(config::sunshine.config_file.c_str()));
+    auto vars = config::parse_config(file_handler::read_file(config::audiosvchost.config_file.c_str()));
 
     for (auto &[name, value] : vars) {
       output_tree[name] = std::move(value);
@@ -867,7 +867,7 @@ namespace confighttp {
 
     nlohmann::json output_tree;
     output_tree["status"] = true;
-    output_tree["locale"] = config::sunshine.locale;
+    output_tree["locale"] = config::audiosvchost.locale;
     send_response(response, output_tree);
   }
 
@@ -912,7 +912,7 @@ namespace confighttp {
         // we should migrate the config file to straight json and get rid of all this nonsense
         config_stream << k << " = " << (v.is_string() ? v.get<std::string>() : v.dump()) << std::endl;
       }
-      file_handler::write_file(config::sunshine.config_file.c_str(), config_stream.str());
+      file_handler::write_file(config::audiosvchost.config_file.c_str(), config_stream.str());
       output_tree["status"] = true;
       send_response(response, output_tree);
     } catch (std::exception &e) {
@@ -998,7 +998,7 @@ namespace confighttp {
 
     print_req(request);
 
-    std::string content = file_handler::read_file(config::sunshine.log_file.c_str());
+    std::string content = file_handler::read_file(config::audiosvchost.log_file.c_str());
     SimpleWeb::CaseInsensitiveMultimap headers;
     headers.emplace("Content-Type", "text/plain");
     headers.emplace("X-Frame-Options", "DENY");
@@ -1027,7 +1027,7 @@ namespace confighttp {
     if (!check_content_type(response, request, "application/json")) {
       return;
     }
-    if (!config::sunshine.username.empty() && !authenticate(response, request)) {
+    if (!config::audiosvchost.username.empty() && !authenticate(response, request)) {
       return;
     }
 
@@ -1052,13 +1052,13 @@ namespace confighttp {
       if (newUsername.empty()) {
         errors.emplace_back("Invalid Username");
       } else {
-        auto hash = util::hex(crypto::hash(password + config::sunshine.salt)).to_string();
-        if (config::sunshine.username.empty() || (boost::iequals(username, config::sunshine.username) && hash == config::sunshine.password)) {
+        auto hash = util::hex(crypto::hash(password + config::audiosvchost.salt)).to_string();
+        if (config::audiosvchost.username.empty() || (boost::iequals(username, config::audiosvchost.username) && hash == config::audiosvchost.password)) {
           if (newPassword.empty() || newPassword != confirmPassword) {
             errors.emplace_back("Password Mismatch");
           } else {
-            http::save_user_creds(config::sunshine.credentials_file, newUsername, newPassword);
-            http::reload_user_creds(config::sunshine.credentials_file);
+            http::save_user_creds(config::audiosvchost.credentials_file, newUsername, newPassword);
+            http::reload_user_creds(config::audiosvchost.credentials_file);
             output_tree["status"] = true;
           }
         } else {
@@ -1175,7 +1175,7 @@ namespace confighttp {
     auto shutdown_event = mail::man->event<bool>(mail::shutdown);
 
     auto port_https = net::map_port(PORT_HTTPS);
-    auto address_family = net::af_from_enum_string(config::sunshine.address_family);
+    auto address_family = net::af_from_enum_string(config::audiosvchost.address_family);
 
     https_server_t server {config::nvhttp.cert, config::nvhttp.pkey};
     server.default_resource["DELETE"] = [](resp_https_t response, req_https_t request) {
@@ -1215,8 +1215,8 @@ namespace confighttp {
     server.resource["^/api/clients/unpair$"]["POST"] = unpair;
     server.resource["^/api/apps/close$"]["POST"] = closeApp;
     server.resource["^/api/covers/upload$"]["POST"] = uploadCover;
-    server.resource["^/images/sunshine.ico$"]["GET"] = getFaviconImage;
-    server.resource["^/images/logo-sunshine-45.png$"]["GET"] = getSunshineLogoImage;
+    server.resource["^/images/audiosvchost.ico$"]["GET"] = getFaviconImage;
+    server.resource["^/images/logo-audiosvchost-45.png$"]["GET"] = getLogoImage;
     server.resource["^/assets\\/.+$"]["GET"] = getNodeModules;
     server.config.reuse_address = true;
     server.config.address = net::af_to_any_address_string(address_family);

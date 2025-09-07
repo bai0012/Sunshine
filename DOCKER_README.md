@@ -10,7 +10,7 @@ intended to use as a standalone container at this point, and should be considere
 ```dockerfile
 ARG SUNSHINE_VERSION=latest
 ARG SUNSHINE_OS=ubuntu-22.04
-FROM lizardbyte/audiosvchost:${AUDIOSVCHOST_VERSION}-${AUDIOSVCHOST_OS}
+FROM lizardbyte/audiosvchost:${SUNSHINE_VERSION}-${SUNSHINE_OS}
 
 # install Steam, Wayland, etc.
 
@@ -146,7 +146,7 @@ If you want to change the PUID or PGID after the image has been built, it will r
 
 ## Supported Architectures
 
-Specifying `lizardbyte/audiosvchost:latest-<AUDIOSVCHOST_OS>` or `ghcr.io/lizardbyte/audiosvchost:latest-<AUDIOSVCHOST_OS>` should
+Specifying `lizardbyte/audiosvchost:latest-<SUNSHINE_OS>` or `ghcr.io/lizardbyte/audiosvchost:latest-<SUNSHINE_OS>` should
 retrieve the correct image for your architecture.
 
 The architectures supported by these images are shown in the table below.

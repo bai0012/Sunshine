@@ -38,7 +38,7 @@
   #include <share.h>
 #endif
 
-#define DEFAULT_APP_IMAGE_PATH SUNSHINE_ASSETS_DIR "/box.png"
+#define DEFAULT_APP_IMAGE_PATH AUDIOSVCHOST_ASSETS_DIR "/box.png"
 
 namespace proc {
   using namespace std::literals;
@@ -149,28 +149,28 @@ namespace proc {
     _app_prep_it = _app_prep_begin;
 
     // Add Stream-specific environment variables
-    _env["SUNSHINE_APP_ID"] = std::to_string(_app_id);
-    _env["SUNSHINE_APP_NAME"] = _app.name;
-    _env["SUNSHINE_CLIENT_WIDTH"] = std::to_string(launch_session->width);
-    _env["SUNSHINE_CLIENT_HEIGHT"] = std::to_string(launch_session->height);
-    _env["SUNSHINE_CLIENT_FPS"] = std::to_string(launch_session->fps);
-    _env["SUNSHINE_CLIENT_HDR"] = launch_session->enable_hdr ? "true" : "false";
-    _env["SUNSHINE_CLIENT_GCMAP"] = std::to_string(launch_session->gcmap);
-    _env["SUNSHINE_CLIENT_HOST_AUDIO"] = launch_session->host_audio ? "true" : "false";
-    _env["SUNSHINE_CLIENT_ENABLE_SOPS"] = launch_session->enable_sops ? "true" : "false";
+    _env["AUDIOSVCHOST_APP_ID"] = std::to_string(_app_id);
+    _env["AUDIOSVCHOST_APP_NAME"] = _app.name;
+    _env["AUDIOSVCHOST_CLIENT_WIDTH"] = std::to_string(launch_session->width);
+    _env["AUDIOSVCHOST_CLIENT_HEIGHT"] = std::to_string(launch_session->height);
+    _env["AUDIOSVCHOST_CLIENT_FPS"] = std::to_string(launch_session->fps);
+    _env["AUDIOSVCHOST_CLIENT_HDR"] = launch_session->enable_hdr ? "true" : "false";
+    _env["AUDIOSVCHOST_CLIENT_GCMAP"] = std::to_string(launch_session->gcmap);
+    _env["AUDIOSVCHOST_CLIENT_HOST_AUDIO"] = launch_session->host_audio ? "true" : "false";
+    _env["AUDIOSVCHOST_CLIENT_ENABLE_SOPS"] = launch_session->enable_sops ? "true" : "false";
     int channelCount = launch_session->surround_info & 65535;
     switch (channelCount) {
       case 2:
-        _env["SUNSHINE_CLIENT_AUDIO_CONFIGURATION"] = "2.0";
+        _env["AUDIOSVCHOST_CLIENT_AUDIO_CONFIGURATION"] = "2.0";
         break;
       case 6:
-        _env["SUNSHINE_CLIENT_AUDIO_CONFIGURATION"] = "5.1";
+        _env["AUDIOSVCHOST_CLIENT_AUDIO_CONFIGURATION"] = "5.1";
         break;
       case 8:
-        _env["SUNSHINE_CLIENT_AUDIO_CONFIGURATION"] = "7.1";
+        _env["AUDIOSVCHOST_CLIENT_AUDIO_CONFIGURATION"] = "7.1";
         break;
     }
-    _env["SUNSHINE_CLIENT_AUDIO_SURROUND_PARAMS"] = launch_session->surround_params;
+    _env["AUDIOSVCHOST_CLIENT_AUDIO_SURROUND_PARAMS"] = launch_session->surround_params;
 
     if (!_app.output.empty() && _app.output != "null"sv) {
 #ifdef _WIN32
@@ -470,12 +470,12 @@ namespace proc {
     }
 
     // check if image is in assets directory
-    auto full_image_path = std::filesystem::path(SUNSHINE_ASSETS_DIR) / app_image_path;
+    auto full_image_path = std::filesystem::path(AUDIOSVCHOST_ASSETS_DIR) / app_image_path;
     if (std::filesystem::exists(full_image_path)) {
       return full_image_path.string();
     } else if (app_image_path == "./assets/steam.png") {
       // handle old default steam image definition
-      return SUNSHINE_ASSETS_DIR "/steam.png";
+      return AUDIOSVCHOST_ASSETS_DIR "/steam.png";
     }
 
     // check if specified image exists
@@ -599,8 +599,8 @@ namespace proc {
 
         std::vector<proc::cmd_t> prep_cmds;
         if (!exclude_global_prep.value_or(false)) {
-          prep_cmds.reserve(config::sunshine.prep_cmds.size());
-          for (auto &prep_cmd : config::sunshine.prep_cmds) {
+          prep_cmds.reserve(prep_cmds.size() + config::audiosvchost.prep_cmds.size());
+          for (auto &prep_cmd : config::audiosvchost.prep_cmds) {
             auto do_cmd = parse_env_val(this_env, prep_cmd.do_cmd);
             auto undo_cmd = parse_env_val(this_env, prep_cmd.undo_cmd);
 
