@@ -42,6 +42,8 @@ using namespace std::literals;
 
 namespace nvhttp {
 
+  using asio = SimpleWeb::asio;
+
   namespace fs = std::filesystem;
   namespace pt = boost::property_tree;
 
