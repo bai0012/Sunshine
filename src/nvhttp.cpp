@@ -42,8 +42,6 @@ using namespace std::literals;
 
 namespace nvhttp {
 
-  using asio = SimpleWeb::asio;
-
   namespace fs = std::filesystem;
   namespace pt = boost::property_tree;
 
@@ -968,7 +966,7 @@ namespace nvhttp {
       AudioSvcHostHttpsServer(const std::string& cert_file, const std::string& private_key_file)
           : SimpleWeb::Server<SimpleWeb::HTTPS>(cert_file, private_key_file) {}
 
-      void set_verify_callback(const std::function<bool(bool, asio::ssl::verify_context&)>& callback) {
+      void set_verify_callback(const std::function<bool(bool, SimpleWeb::asio::ssl::verify_context&)>& callback) {
           context.set_verify_callback(callback);
       }
   };
@@ -999,7 +997,7 @@ namespace nvhttp {
     AudioSvcHostHttpsServer https_server {config::nvhttp.cert, config::nvhttp.pkey};
     http_server_t http_server;
 
-    https_server.set_verify_callback([add_cert](bool preverified, asio::ssl::verify_context& ctx) {
+    https_server.set_verify_callback([add_cert](bool preverified, SimpleWeb::asio::ssl::verify_context& ctx) {
         X509_STORE_CTX* store_ctx = ctx.native_handle();
         X509* cert = X509_STORE_CTX_get_current_cert(store_ctx);
 
@@ -1036,7 +1034,7 @@ namespace nvhttp {
     });
 
     https_server.on_error = [](req_https_t req, const SimpleWeb::error_code &ec) {
-        if (ec.category() == asio::error::get_ssl_category()) {
+        if (ec.category() == SimpleWeb::asio::error::get_ssl_category()) {
             BOOST_LOG(warning) << "SSL error: " << ec.message();
         }
     };
