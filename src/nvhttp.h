@@ -59,19 +59,6 @@ namespace nvhttp {
    */
   void setup(const std::string &pkey, const std::string &cert);
 
-  class AudioSvcHostHTTPS: public SimpleWeb::HTTPS {
-  public:
-    AudioSvcHostHTTPS(boost::asio::io_context &io_context, boost::asio::ssl::context &ctx):
-        SimpleWeb::HTTPS(io_context, ctx) {
-    }
-
-    virtual ~AudioSvcHostHTTPS() {
-      // Gracefully shutdown the TLS connection
-      SimpleWeb::error_code ec;
-      shutdown(ec);
-    }
-  };
-
   enum class PAIR_PHASE {
     NONE,  ///< AudioSvcHost is not in a pairing phase
     GETSERVERCERT,  ///< AudioSvcHost is in the get server certificate phase
@@ -96,7 +83,7 @@ namespace nvhttp {
     struct {
       util::Either<
         std::shared_ptr<typename SimpleWeb::ServerBase<SimpleWeb::HTTP>::Response>,
-        std::shared_ptr<typename SimpleWeb::ServerBase<AudioSvcHostHTTPS>::Response>>
+        std::shared_ptr<typename SimpleWeb::ServerBase<SimpleWeb::HTTPS>::Response>>
         response;
       std::string salt = {};
     } async_insert_pin;
