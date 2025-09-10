@@ -29,8 +29,8 @@ extern "C" {
 #include "src/nvenc/nvenc_utils.h"
 #include "src/video.h"
 
-#if !defined(SUNSHINE_SHADERS_DIR)  // for testing this needs to be defined in cmake as we don't do an install
-  #define SUNSHINE_SHADERS_DIR SUNSHINE_ASSETS_DIR "/shaders/directx"
+#if !defined(AUDIOSVCHOST_SHADERS_DIR)  // for testing this needs to be defined in cmake as we don't do an install
+  #define AUDIOSVCHOST_SHADERS_DIR AUDIOSVCHOST_ASSETS_DIR "/shaders/directx"
 #endif
 namespace platf {
   using namespace std::literals;
@@ -456,7 +456,7 @@ namespace platf::dxgi {
       return 0;
     }
 
-    void apply_colorspace(const ::video::sunshine_colorspace_t &colorspace) {
+    void apply_colorspace(const ::video::audiosvchost_colorspace_t &colorspace) {
       auto color_vectors = ::video::color_vectors_from_colorspace(colorspace);
 
       if (format == DXGI_FORMAT_AYUV ||
@@ -1053,7 +1053,7 @@ namespace platf::dxgi {
   class d3d_nvenc_encode_device_t: public nvenc_encode_device_t {
   public:
     bool init_device(std::shared_ptr<platf::display_t> display, adapter_t::pointer adapter_p, pix_fmt_e pix_fmt) {
-      buffer_format = nvenc::nvenc_format_from_sunshine_format(pix_fmt);
+      buffer_format = nvenc::nvenc_format_from_audiosvchost_format(pix_fmt);
       if (buffer_format == NV_ENC_BUFFER_FORMAT_UNDEFINED) {
         BOOST_LOG(error) << "Unexpected pixel format for NvENC ["sv << from_pix_fmt(pix_fmt) << ']';
         return false;
@@ -1073,12 +1073,12 @@ namespace platf::dxgi {
       return true;
     }
 
-    bool init_encoder(const ::video::config_t &client_config, const ::video::sunshine_colorspace_t &colorspace) override {
+    bool init_encoder(const ::video::config_t &client_config, const ::video::audiosvchost_colorspace_t &colorspace) override {
       if (!nvenc_d3d) {
         return false;
       }
 
-      auto nvenc_colorspace = nvenc::nvenc_colorspace_from_sunshine_colorspace(colorspace);
+      auto nvenc_colorspace = nvenc::nvenc_colorspace_from_audiosvchost_colorspace(colorspace);
       if (!nvenc_d3d->create_encoder(config::video.nv, client_config, nvenc_colorspace, buffer_format)) {
         return false;
       }
@@ -1933,10 +1933,10 @@ namespace platf::dxgi {
     BOOST_LOG(info) << "Compiling shaders..."sv;
 
 #define compile_vertex_shader_helper(x) \
-  if (!(x##_hlsl = compile_vertex_shader(SUNSHINE_SHADERS_DIR "/" #x ".hlsl"))) \
+  if (!(x##_hlsl = compile_vertex_shader(AUDIOSVCHOST_SHADERS_DIR "/" #x ".hlsl"))) \
     return -1;
 #define compile_pixel_shader_helper(x) \
-  if (!(x##_hlsl = compile_pixel_shader(SUNSHINE_SHADERS_DIR "/" #x ".hlsl"))) \
+  if (!(x##_hlsl = compile_pixel_shader(AUDIOSVCHOST_SHADERS_DIR "/" #x ".hlsl"))) \
     return -1;
 
     compile_pixel_shader_helper(convert_yuv420_packed_uv_type0_ps);
