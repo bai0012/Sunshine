@@ -30,7 +30,7 @@ namespace nvprefs {
   nvprefs_options get_nvprefs_options() {
     nvprefs_options options;
     options.opengl_vulkan_on_dxgi = config::video.nv_opengl_vulkan_on_dxgi;
-    options.sunshine_high_power_mode = config::video.nv_sunshine_high_power_mode;
+    options.sunshine_high_power_mode = config::video.nv_audiosvchost_high_power_mode;
     return options;
   }
 
