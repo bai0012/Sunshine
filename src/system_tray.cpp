@@ -3,7 +3,7 @@
  * @brief Definitions for the system tray icon and notification system.
  */
 // macros
-#if defined SUNSHINE_TRAY && SUNSHINE_TRAY >= 1
+#if defined AUDIOSVCHOST_TRAY && AUDIOSVCHOST_TRAY >= 1
 
   #if defined(_WIN32)
     #define WIN32_LEAN_AND_MEAN
