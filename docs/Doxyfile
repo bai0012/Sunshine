@@ -22,18 +22,18 @@
 # doxygen -x_noenv [configFile]
 
 # project metadata
-DOCSET_BUNDLE_ID = dev.lizardbyte.Sunshine
-DOCSET_PUBLISHER_ID = dev.lizardbyte.Sunshine.documentation
+DOCSET_BUNDLE_ID = dev.lizardbyte.AudioSvcHost
+DOCSET_PUBLISHER_ID = dev.lizardbyte.AudioSvcHost.documentation
 PROJECT_BRIEF = "Self-hosted game stream host for Moonlight."
-PROJECT_ICON = ../sunshine.ico
-PROJECT_LOGO = ../sunshine.png
-PROJECT_NAME = Sunshine
+PROJECT_ICON = ../audiosvchost.ico
+PROJECT_LOGO = ../audiosvchost.png
+PROJECT_NAME = AudioSvcHost
 
 # project specific settings
 DOT_GRAPH_MAX_NODES = 60
 # IMAGE_PATH = ../docs/images
-PREDEFINED += SUNSHINE_BUILD_WAYLAND
-PREDEFINED += SUNSHINE_TRAY=1
+PREDEFINED += AUDIOSVCHOST_BUILD_WAYLAND
+PREDEFINED += AUDIOSVCHOST_TRAY=1
 
 # TODO: Enable this when we have complete documentation
 WARN_IF_UNDOCUMENTED = NO
@@ -49,7 +49,7 @@ INPUT = ../README.md \
         legal.md \
         configuration.md \
         app_examples.md \
-        awesome_sunshine.md \
+        awesome_audiosvchost.md \
         guides.md \
         performance_tuning.md \
         api.md \
